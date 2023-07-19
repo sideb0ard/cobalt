@@ -25,6 +25,8 @@
 #include "base/logging.h"
 #include "base/metrics/statistics_recorder.h"
 #include "base/metrics/user_metrics.h"
+#include "base/metrics/histogram.h"
+#include "base/metrics/histogram_macros.h"
 #include "base/optional.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
@@ -1427,6 +1429,8 @@ void Application::UpdatePeriodicStats() {
       static_cast<ssize_t>(SbSystemGetTotalCPUMemory() - used_cpu_memory);
   c_val_stats_.free_cpu_memory = available_memory_;
   c_val_stats_.used_cpu_memory = used_cpu_memory;
+  UMA_HISTOGRAM_MEMORY_LARGE_MB("THORS.AVAIL_MEMORY.Histogram", available_memory_);
+  UMA_HISTOGRAM_MEMORY_LARGE_MB("THORS.USED MEMORY.Histogram", used_cpu_memory);
 
   if (used_gpu_memory) {
     *c_val_stats_.free_gpu_memory =

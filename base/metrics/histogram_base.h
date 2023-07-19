@@ -206,6 +206,8 @@ class BASE_EXPORT HistogramBase {
   // does not serialize the samples.
   void SerializeInfo(base::Pickle* pickle) const;
 
+  int32_t GetLatestSample() const;
+
   // Try to find out data corruption from histogram and the samples.
   // The returned value is a combination of Inconsistency enum.
   virtual uint32_t FindCorruption(const HistogramSamples& samples) const;
@@ -281,6 +283,9 @@ class BASE_EXPORT HistogramBase {
   // Gets a permanent string that can be used for histogram objects when the
   // original is not a code constant or held in persistent memory.
   static const char* GetPermanentName(const std::string& name);
+
+  int32_t latest_sample_;
+
 
  private:
   friend class HistogramBaseTest;

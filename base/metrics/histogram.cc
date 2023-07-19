@@ -628,6 +628,7 @@ bool Histogram::HasConstructionArguments(Sample expected_minimum,
 }
 
 void Histogram::Add(int value) {
+  latest_sample_ = value;
   AddCount(value, 1);
 }
 

@@ -17,8 +17,12 @@
 #include <string>
 
 #include "base/values.h"
+#include "base/strings/stringprintf.h"
 #include "cobalt/browser/metrics/cobalt_metrics_service_client.h"
 #include "cobalt/browser/metrics/cobalt_metrics_services_manager.h"
+#include "base/metrics/histogram.h"
+#include "base/metrics/statistics_recorder.h"
+#include "base/values.h"
 #include "cobalt/h5vcc/h5vcc_metric_type.h"
 #include "cobalt/h5vcc/metric_event_handler_wrapper.h"
 
@@ -58,6 +62,39 @@ void H5vccMetrics::RunEventHandlerInternal(
 void H5vccMetrics::Enable() { ToggleMetricsEnabled(true); }
 
 void H5vccMetrics::Disable() { ToggleMetricsEnabled(false); }
+
+double H5vccMetrics::Cvals() {
+  LOG(INFO) << "YO - THORS METRICS cVALS!";
+  auto histos = base::StatisticsRecorder::GetHistograms();
+  int num_histos = base::StatisticsRecorder::GetHistogramCount();
+  LOG(INFO) << "YO HAVE " << num_histos << " HISTOS";
+  LOG(INFO) << "AN A VECTOR OF HISTSOS - this size:" << histos.size();
+  for (const auto &h : histos) {
+    std::string nom{h->histogram_name()};
+    LOG(INFO) << "NAME: " << nom;
+    if (nom == "THORS.USED MEMORY.Histogram") {
+      LOG(INFO) << "YO GOT A THOR SAMPLE!\n";
+      auto samps = h->SnapshotSamples();
+      //LOG(INFO) << "SIZE OF SAMPES:" << samps.size();
+      std::string jsz;
+      h->WriteJSON(&jsz, base::JSONVerbosityLevel::JSON_VERBOSITY_LEVEL_FULL);
+      LOG(INFO) << jsz;
+      auto latest= h->GetLatestSample();
+      return latest;
+    }
+  }
+  return 0;
+  // base::StatisticsRecorder::ImportProvidedHistogramsSync();
+  // base::Value::List histograms_list;
+  // for (base::HistogramBase* histogram :
+  //      base::StatisticsRecorder::Sort(base::StatisticsRecorder::WithName(
+  //          base::StatisticsRecorder::GetHistograms(), params.query,
+  //          /*case_sensitive=*/false))) {
+  //   base::Value::Dict histogram_dict = histogram->ToGraphDict();
+  //   if (!histogram_dict.empty())
+  //     histograms_list.Append(std::move(histogram_dict));
+  // }
+}
 
 void H5vccMetrics::ToggleMetricsEnabled(bool is_enabled) {
   persistent_settings_->SetPersistentSetting(

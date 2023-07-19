@@ -135,6 +135,10 @@ void HistogramBase::SerializeInfo(Pickle* pickle) const {
   SerializeInfoImpl(pickle);
 }
 
+int32_t HistogramBase::GetLatestSample() const {
+  return latest_sample_;
+}
+
 uint32_t HistogramBase::FindCorruption(const HistogramSamples& samples) const {
   // Not supported by default.
   return NO_INCONSISTENCIES;

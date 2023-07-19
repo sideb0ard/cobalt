@@ -61,6 +61,9 @@ class H5vccMetrics : public script::Wrappable {
   // Disable Cobalt metrics logging.
   void Disable();
 
+  // THORS TEST CVAL INTERFACE
+  double Cvals();
+
   // Returns current enabled state of metrics logging/reporting.
   bool IsEnabled();
 
