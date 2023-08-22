@@ -19,10 +19,10 @@
 #include "base/path_service.h"
 #include "base/task/task_scheduler/task_scheduler.h"
 #include "cobalt/base/wrap_main.h"
+#include "cobalt/media/cobalt_media_log.h"
 #include "cobalt/media/decoder_buffer_allocator.h"
 #include "starboard/common/string.h"
 #include "starboard/event.h"
-#include "third_party/chromium/media/base/media_log.h"
 #include "third_party/chromium/media/filters/chunk_demuxer.h"
 
 namespace cobalt {
@@ -107,7 +107,7 @@ int SandboxMain(int argc, char** argv) {
   }
 
   DecoderBufferAllocator decoder_buffer_allocator;
-  ::media::MediaLog media_log;
+  CobaltMediaLog media_log;
   base::MessageLoop message_loop;
   // A one-per-process task scheduler is needed for usage of APIs in
   // base/post_task.h which will be used by some net APIs like

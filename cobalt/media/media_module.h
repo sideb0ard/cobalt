@@ -27,6 +27,7 @@
 #include "cobalt/math/size.h"
 #include "cobalt/media/base/sbplayer_interface.h"
 #include "cobalt/media/can_play_type_handler.h"
+#include "cobalt/media/cobalt_media_log.h"
 #include "cobalt/media/decoder_buffer_allocator.h"
 #include "cobalt/media/player/web_media_player_delegate.h"
 #include "cobalt/media/player/web_media_player_impl.h"
@@ -36,7 +37,6 @@
 #include "cobalt/system_window/system_window.h"
 #include "starboard/common/mutex.h"
 #include "starboard/player.h"
-#include "third_party/chromium/media/base/media_log.h"
 
 namespace cobalt {
 namespace media {
@@ -114,7 +114,7 @@ class MediaModule : public WebMediaPlayerFactory,
   system_window::SystemWindow* system_window_;
   cobalt::render_tree::ResourceProvider* resource_provider_;
 
-  ::media::MediaLog media_log_;
+  CobaltMediaLog media_log_;
 
   // Protect access to the list of players.
   starboard::Mutex players_lock_;

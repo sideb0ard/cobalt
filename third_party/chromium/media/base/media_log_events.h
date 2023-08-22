@@ -84,6 +84,7 @@ MEDIA_LOG_EVENT_TYPELESS(kWebMediaPlayerCreated);
 // These events can be triggered with the extra data / names as defined here.
 // Note that some events can be defined multiple times.
 MEDIA_LOG_EVENT_NAMED_DATA(kSeek, double, "seek_target");
+MEDIA_LOG_EVENT_NAMED_DATA(kSeek, float, "seek_target");
 MEDIA_LOG_EVENT_NAMED_DATA(kVideoSizeChanged, gfx::Size, "dimensions");
 MEDIA_LOG_EVENT_NAMED_DATA(kDurationChanged, base::TimeDelta, "duration");
 MEDIA_LOG_EVENT_NAMED_DATA(kPipelineStateChange, std::string, "pipeline_state");

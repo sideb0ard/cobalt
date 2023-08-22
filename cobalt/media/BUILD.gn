@@ -53,6 +53,7 @@ component("media") {
     "base/sbplayer_set_bounds_helper.h",
     "bidirectional_fit_reuse_allocator.cc",
     "bidirectional_fit_reuse_allocator.h",
+    "cobalt_media_log.h",
     "decoder_buffer_allocator.cc",
     "decoder_buffer_allocator.h",
     "decoder_buffer_memory_info.h",
