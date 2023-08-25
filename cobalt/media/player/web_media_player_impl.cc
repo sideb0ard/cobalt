@@ -145,6 +145,7 @@ WebMediaPlayerImpl::WebMediaPlayerImpl(
 
   decode_target_provider_ = new DecodeTargetProvider();
 
+  LOG(INFO) << "YO THOR! ADD EVENT _ PLAYERCREATED";
   media_log_->AddEvent<::media::MediaLogEvent::kWebMediaPlayerCreated>();
 
   pipeline_thread_.Start();
@@ -181,6 +182,7 @@ WebMediaPlayerImpl::~WebMediaPlayerImpl() {
   progressive_demuxer_.reset();
   chunk_demuxer_.reset();
 
+  LOG(INFO) << "YO THOR! ADD EVENT _PLAYER DESTROYED";
   media_log_->AddEvent<::media::MediaLogEvent::kWebMediaPlayerDestroyed>();
 
   // Finally tell the |main_loop_| we don't want to be notified of destruction
@@ -239,6 +241,7 @@ void WebMediaPlayerImpl::LoadUrl(const GURL& url) {
   // TODO: Set networkState to WebMediaPlayer::kNetworkStateIdle on stop.
   SetNetworkState(WebMediaPlayer::kNetworkStateLoading);
   SetReadyState(WebMediaPlayer::kReadyStateHaveNothing);
+  LOG(INFO) << "YO THOR! ADD EVENT _PLAYER LOG URL";
   media_log_->AddEvent<::media::MediaLogEvent::kLoad>(url.spec());
 
   is_local_source_ = !url.SchemeIs("http") && !url.SchemeIs("https");
@@ -285,6 +288,7 @@ void WebMediaPlayerImpl::LoadProgressive(
 
   SetNetworkState(WebMediaPlayer::kNetworkStateLoading);
   SetReadyState(WebMediaPlayer::kReadyStateHaveNothing);
+  LOG(INFO) << "YO THOR! ADD EVENT _PLAYER LOG URL";
   media_log_->AddEvent<::media::MediaLogEvent::kLoad>(url.spec());
 
   data_source->SetDownloadingStatusCB(
@@ -323,6 +327,7 @@ void WebMediaPlayerImpl::Play() {
   state_.paused = false;
   pipeline_->SetPlaybackRate(state_.playback_rate);
 
+  LOG(INFO) << "YO THOR! ADD EVENT _PLAYER PLAY";
   media_log_->AddEvent<::media::MediaLogEvent::kPlay>();
 }
 
@@ -333,6 +338,7 @@ void WebMediaPlayerImpl::Pause() {
   pipeline_->SetPlaybackRate(0.0f);
   state_.paused_time = pipeline_->GetMediaTime();
 
+  LOG(INFO) << "YO THOR! ADD EVENT _PLAYER PAUSE";
   media_log_->AddEvent<::media::MediaLogEvent::kPause>();
 }
 
@@ -358,6 +364,7 @@ void WebMediaPlayerImpl::Seek(float seconds) {
     return;
   }
 
+  LOG(INFO) << "YO THOR! ADD EVENT _PLAYER SEEK";
   media_log_->AddEvent<::media::MediaLogEvent::kSeek>(seconds);
 
   base::TimeDelta seek_time = ConvertSecondsToTimestamp(seconds);

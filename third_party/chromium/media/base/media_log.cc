@@ -21,10 +21,12 @@ const char MediaLog::kStatusText[] = "pipeline_error";
 // unique IDs.
 static base::AtomicSequenceNumber g_media_log_count;
 
-MediaLog::MediaLog() : MediaLog(new ParentLogRecord(this)) {}
+MediaLog::MediaLog() : MediaLog(new ParentLogRecord(this)) { LOG(INFO) << "THOR NEW MEDIA LOG - CREATE OUR OWN PARENT!"; }
 
 MediaLog::MediaLog(scoped_refptr<ParentLogRecord> parent_log_record)
-    : parent_log_record_(std::move(parent_log_record)) {}
+    : parent_log_record_(std::move(parent_log_record)) {
+      LOG(INFO) << "THOR THOR NEW MEDIA LOG - PARENT LOG RECORD PASSED IN.";
+    }
 
 MediaLog::~MediaLog() {
   // If we are the underlying log, then somebody should have called
@@ -51,15 +53,24 @@ std::string MediaLog::GetErrorMessageLocked() {
 void MediaLog::AddMessage(MediaLogMessageLevel level, std::string message) {
   std::unique_ptr<MediaLogRecord> record(
       CreateRecord(MediaLogRecord::Type::kMessage));
+  LOG(INFO) << "YO THOR = ADD MESSAGE!";
+#if defined(STARBOARD)
+  record->params.SetString(MediaLogMessageLevelToString(level), std::move(message));
+#else // defined(STARBOARD)
   record->params.SetStringPath(MediaLogMessageLevelToString(level),
                                std::move(message));
+#endif // defined(STARBOARD)
   AddLogRecord(std::move(record));
 }
 
 void MediaLog::NotifyError(PipelineStatus status) {
   std::unique_ptr<MediaLogRecord> record(
       CreateRecord(MediaLogRecord::Type::kMediaStatus));
+#if defined(STARBOARD)
+  record->params.SetInteger(MediaLog::kStatusText, status);
+#else // defined(STARBOARD)
   record->params.SetIntPath(MediaLog::kStatusText, status);
+#endif // defined(STARBOARD)
   AddLogRecord(std::move(record));
 }
 
@@ -96,12 +107,16 @@ std::unique_ptr<MediaLog> MediaLog::Clone() {
 void MediaLog::AddLogRecord(std::unique_ptr<MediaLogRecord> record) {
   base::AutoLock auto_lock(parent_log_record_->lock);
   // Forward to the parent log's implementation.
+  LOG(INFO) << "YO THOR - MEDIA LOG BASE - ADD LOG RECORD!";
+  LOG(INFO) << "GOT PARENT LOG _RECRD?";
   if (parent_log_record_->media_log)
+    LOG(INFO) << "YESH! GOT PARENT LOG _RECRD!";
     parent_log_record_->media_log->AddLogRecordLocked(std::move(record));
 }
 
 std::unique_ptr<MediaLogRecord> MediaLog::CreateRecord(
     MediaLogRecord::Type type) {
+  LOG(INFO) << "YO THOR - CREATE RECORD";
   auto record = std::make_unique<MediaLogRecord>();
   record->id = id();
   record->type = type;

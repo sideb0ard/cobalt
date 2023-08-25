@@ -149,6 +149,7 @@ class MEDIA_EXPORT MediaLog {
   }
   template <MediaLogEvent E, typename... Opt>
   std::unique_ptr<MediaLogRecord> CreateEventRecord() {
+    LOG(INFO) << "YO THOR - CREATE EVENT RECORD!";
     std::unique_ptr<MediaLogRecord> record(
         CreateRecord(MediaLogRecord::Type::kMediaEventTriggered));
     record->params.SetString(MediaLog::kEventKey,

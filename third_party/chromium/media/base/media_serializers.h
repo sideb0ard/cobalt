@@ -55,8 +55,10 @@ template <typename VecType>
 struct MediaSerializer<std::vector<VecType>> {
   static base::Value Serialize(const std::vector<VecType>& vec) {
 #if defined(STARBOARD)
-    NOTREACHED();
-    return base::Value();
+    base::Value result(base::Value::Type::LIST);
+    // for (const VecType& value : vec)
+    //   result.Append(MediaSerializer<VecType>::Serialize(value));
+    return result;
 #else  // defined(STARBOARD)
     base::Value result(base::Value::Type::LIST);
     for (const VecType& value : vec)

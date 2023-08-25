@@ -16,9 +16,9 @@ namespace media {
 // TODO(tmathmeyer) refactor this so that we aren't packing type-erased data
 // with different meanings into "params".
 struct MediaLogRecord {
-  MediaLogRecord() {}
+  MediaLogRecord() {LOG(INFO) << "THOR YO! MEDIA LOG RECORD CONSTRR";}
 
-  MediaLogRecord(const MediaLogRecord& event) { *this = event; }
+  MediaLogRecord(const MediaLogRecord& event) { *this = event;  LOG(INFO) << "THOR YO! MEDIA LOG RECORD CONSTRRR with EVENT";}
 
   MediaLogRecord& operator=(const MediaLogRecord& event) {
     id = event.id;
