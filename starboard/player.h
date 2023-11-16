@@ -66,6 +66,8 @@ typedef enum SbPlayerState {
 } SbPlayerState;
 
 typedef enum SbPlayerError {
+  // Default value for no error seen.
+  kSbPlayerErrorNone,
   kSbPlayerErrorDecode,
   // The playback capability of the player has changed, likely because of a
   // change of the system environment.  For example, the system may support vp9

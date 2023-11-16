@@ -306,6 +306,8 @@ class MEDIA_EXPORT SbPlayerPipeline : public Pipeline,
   base::CVal<bool> stopped_;
   base::CVal<bool> ended_;
   base::CVal<SbPlayerState> player_state_;
+  base::CVal<SbPlayerError> player_error_;
+  base::CVal<std::string> player_error_message_;
 
   MediaMetricsProvider* media_metrics_provider_;
 

@@ -152,6 +152,13 @@ SbPlayerPipeline::SbPlayerPipeline(
                                        pipeline_identifier_.c_str()),
                     kSbPlayerStateInitialized,
                     "The underlying SbPlayer state of the media pipeline."),
+      player_error_(base::StringPrintf("Media.Pipeline.%s.PlayerError",
+                                       pipeline_identifier_.c_str()),
+                    kSbPlayerErrorNone, "Error state if any, of SbPlayer."),
+      player_error_message_(
+          base::StringPrintf("Media.Pipeline.%s.PlayerErrorMessage",
+                             pipeline_identifier_.c_str()),
+          "no error", "Reason for player error."),
       decode_target_provider_(decode_target_provider),
 #if SB_API_VERSION >= 15
       audio_write_duration_local_(audio_write_duration_local),
@@ -1209,6 +1216,11 @@ void SbPlayerPipeline::OnPlayerError(SbPlayerError error,
     return;
   }
 
+  player_error_ = error;
+  player_error_message_ = message;
+
+  LOG(INFO) << "WOOF THOR! ERROR IS :" << error << " Reason:" << message;
+
 #if SB_HAS(PLAYER_WITH_URL)
   if (error >= kSbPlayerErrorMax) {
     DCHECK(is_url_based_);
@@ -1232,6 +1244,7 @@ void SbPlayerPipeline::OnPlayerError(SbPlayerError error,
       CallErrorCB(::media::PLAYBACK_CAPABILITY_CHANGED, message);
       break;
     case kSbPlayerErrorMax:
+    case kSbPlayerErrorNone:
       NOTREACHED();
       break;
   }
