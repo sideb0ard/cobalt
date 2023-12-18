@@ -104,33 +104,50 @@ void TraceEventAgent::CollectTraceData(
 }
 
 ///////////////// TRACE V8 AGENT ///////////////////////////////////
-TraceV8Agent::TraceV8Agent(script::ScriptDebugger* script_debugger)
-    : script_debugger_(script_debugger) {}
-
-void TraceV8Agent::AppendTraceEvent(const std::string& trace_event_json) {
-  trace_buffer_.AddFragment(trace_event_json);
-}
-
-void TraceV8Agent::FlushTraceEvents() {
-  trace_buffer_.Finish();
-  std::move(on_stop_callback_)
-      .Run(agent_name_, agent_event_label_,
-           base::RefCountedString::TakeString(&json_output_.json_output));
-}
+TraceV8Agent::TraceV8Agent()
+    : v8_tracing_(new v8::platform::tracing::TracingController()) {}
 
 void TraceV8Agent::StartAgentTracing(const TraceConfig& trace_config,
                                      StartAgentTracingCallback callback) {
+  LOG(INFO) << "YO THOR - TRACE v8 AGENT - START AGENT TRACING";
   json_output_.json_output.clear();
   trace_buffer_.SetOutputCallback(json_output_.GetCallback());
   trace_buffer_.Start();
 
-  script_debugger_->StartTracing(std::vector<std::string>(), this);
+  v8_tracing_->Initialize(trace_buffer_);
+  v8_tracing_->StartTracing(&trace_config);
   std::move(callback).Run(agent_name_, true);
 }
 
 void TraceV8Agent::StopAgentTracing(StopAgentTracingCallback callback) {
   on_stop_callback_ = std::move(callback);
-  script_debugger_->StopTracing();
+  v8_tracing_->StopTracing();
+  trace_buffer_.Finish();
+
+  // base::Thread thread("json_outputter");
+  // thread.Start();
+
+  // base::WaitableEvent waitable_event;
+  // auto collect_data_callback =
+  //     base::Bind(&TraceV8Agent::CollectTraceData, base::Unretained(this),
+  //                base::BindRepeating(&base::WaitableEvent::Signal,
+  //                                    base::Unretained(&waitable_event)));
+  ////  Write out the actual data by calling Flush().  Within Flush(), this
+  ////  will call OutputTraceData(), possibly multiple times.  We have to do
+  /// this /  on a thread as there will be tasks posted to the current thread
+  /// for data /  writing.
+  // thread.message_loop()->task_runner()->PostTask(
+  //     FROM_HERE, base::BindRepeating(&base::trace_event::TraceLog::Flush,
+  //                                    base::Unretained(trace_log),
+  //                                    collect_data_callback, false));
+  // waitable_event.Wait();
+  // trace_buffer_.Finish();
+
+
+  // trace_buffer_.Finish();
+  // std::move(on_stop_callback_)
+  //     .Run(agent_name_, agent_event_label_,
+  //          base::RefCountedString::TakeString(&json_output_.json_output));
 }
 
 ///////////////// TRACING CONTROLLER //////////////////////////////////
@@ -148,7 +165,7 @@ TracingController::TracingController(DebugDispatcher* dispatcher,
       base::Bind(&TracingController::Start, base::Unretained(this));
 
   agents_.push_back(std::make_unique<TraceEventAgent>());
-  // agents_.push_back(std::make_unique<TraceV8Agent>(script_debugger));
+  agents_.push_back(std::make_unique<TraceV8Agent>(script_debugger));
 }
 
 void TracingController::Thaw(JSONObject agent_state) {

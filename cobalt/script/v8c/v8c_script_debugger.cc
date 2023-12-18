@@ -90,6 +90,7 @@ constexpr char kContextName[] = "Cobalt";
 
 
 V8cTracingController* GetTracingController() {
+  LOG(INFO) << "YO THOR _ GET TRACING CONTEOLLER";
   return base::polymorphic_downcast<V8cTracingController*>(
       IsolateFellowship::GetInstance()->platform->GetTracingController());
 }
@@ -128,6 +129,7 @@ V8cScriptDebugger::V8cScriptDebugger(
           inspector_(v8_inspector::V8Inspector::create(
               global_environment_->isolate(), /* client */ this))),
       pause_on_exception_state_(kAll) {
+  LOG(INFO) << "YO THOR _ V8 SCRIPT DEBUGGER CTOR";
   // Register our one-and-only context with the inspector.
   v8::Isolate* isolate = global_environment_->isolate();
   EntryScope entry_scope(isolate);
@@ -170,6 +172,7 @@ std::string V8cScriptDebugger::Detach() {
 bool V8cScriptDebugger::EvaluateDebuggerScript(const std::string& js_code,
                                                std::string* out_result_utf8) {
   TRACE_EVENT0("cobalt::script", "V8cScriptDebugger::EvaluateDebuggerScript()");
+  LOG(INFO) << "YO THOR - v8 SCRIPT DEBUBGER EVAL DBUGGER SCIRP";
 
   v8::Isolate* isolate = global_environment_->isolate();
   EntryScope entry_scope(isolate);
@@ -285,12 +288,14 @@ const script::ValueHandleHolder* V8cScriptDebugger::LookupRemoteObjectId(
 
 void V8cScriptDebugger::StartTracing(const std::vector<std::string>& categories,
                                      TraceDelegate* trace_delegate) {
+  LOG(INFO) << "YO THOR! V8 SCRDBUG - START TRACING";
   V8cTracingController* tracing_controller = GetTracingController();
   CHECK(tracing_controller);
   tracing_controller->StartTracing(categories, trace_delegate);
 }
 
 void V8cScriptDebugger::StopTracing() {
+  LOG(INFO) << "YO THOR! V8 SCRDBUG - START TRACING";
   V8cTracingController* tracing_controller = GetTracingController();
   CHECK(tracing_controller);
   tracing_controller->StopTracing();
