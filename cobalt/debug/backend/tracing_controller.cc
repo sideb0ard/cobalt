@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <utility>
 
 #include "base/bind.h"
@@ -24,6 +25,7 @@
 #include "base/values.h"
 #include "cobalt/script/script_debugger.h"
 #include "starboard/common/string.h"
+#include "v8/include/libplatform/v8-tracing.h"
 
 namespace cobalt {
 namespace debug {
@@ -105,49 +107,39 @@ void TraceEventAgent::CollectTraceData(
 
 ///////////////// TRACE V8 AGENT ///////////////////////////////////
 TraceV8Agent::TraceV8Agent()
-    : v8_tracing_(new v8::platform::tracing::TracingController()) {}
+    : v8_tracing_(new v8::platform::tracing::TracingController()) {
+  LOG(INFO) << "YO THOR - NEW TRACE v8 AGENT - CTRO!";
+}
 
 void TraceV8Agent::StartAgentTracing(const TraceConfig& trace_config,
                                      StartAgentTracingCallback callback) {
   LOG(INFO) << "YO THOR - TRACE v8 AGENT - START AGENT TRACING";
   json_output_.json_output.clear();
   trace_buffer_.SetOutputCallback(json_output_.GetCallback());
-  trace_buffer_.Start();
 
-  v8_tracing_->Initialize(trace_buffer_);
-  v8_tracing_->StartTracing(&trace_config);
+
+  v8_writer_ =
+      v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(v8_stream_);
+
+  v8_buffer_ = v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
+      v8::platform::tracing::TraceBuffer::kRingBufferChunks, v8_writer_);
+
+  v8_tracing_->Initialize(v8_buffer_);
+  v8_config_ = v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
+  v8_tracing_->StartTracing(v8_config_);
+
   std::move(callback).Run(agent_name_, true);
 }
 
 void TraceV8Agent::StopAgentTracing(StopAgentTracingCallback callback) {
-  on_stop_callback_ = std::move(callback);
+  LOG(INFO) << "YO THOR - V8 AGENT _ SOPT TRACING";
   v8_tracing_->StopTracing();
-  trace_buffer_.Finish();
+  LOG(INFO) << "YO THOR - V8 AGENT _ FLUSH BUFFER";
+  v8_buffer_->Flush();
 
-  // base::Thread thread("json_outputter");
-  // thread.Start();
-
-  // base::WaitableEvent waitable_event;
-  // auto collect_data_callback =
-  //     base::Bind(&TraceV8Agent::CollectTraceData, base::Unretained(this),
-  //                base::BindRepeating(&base::WaitableEvent::Signal,
-  //                                    base::Unretained(&waitable_event)));
-  ////  Write out the actual data by calling Flush().  Within Flush(), this
-  ////  will call OutputTraceData(), possibly multiple times.  We have to do
-  /// this /  on a thread as there will be tasks posted to the current thread
-  /// for data /  writing.
-  // thread.message_loop()->task_runner()->PostTask(
-  //     FROM_HERE, base::BindRepeating(&base::trace_event::TraceLog::Flush,
-  //                                    base::Unretained(trace_log),
-  //                                    collect_data_callback, false));
-  // waitable_event.Wait();
-  // trace_buffer_.Finish();
-
-
-  // trace_buffer_.Finish();
-  // std::move(on_stop_callback_)
-  //     .Run(agent_name_, agent_event_label_,
-  //          base::RefCountedString::TakeString(&json_output_.json_output));
+  std::string json_out = v8_stream_.str();
+  std::move(callback).Run(agent_name_, agent_event_label_,
+                          base::RefCountedString::TakeString(&json_out));
 }
 
 ///////////////// TRACING CONTROLLER //////////////////////////////////
@@ -165,7 +157,7 @@ TracingController::TracingController(DebugDispatcher* dispatcher,
       base::Bind(&TracingController::Start, base::Unretained(this));
 
   agents_.push_back(std::make_unique<TraceEventAgent>());
-  agents_.push_back(std::make_unique<TraceV8Agent>(script_debugger));
+  agents_.push_back(std::make_unique<TraceV8Agent>());
 }
 
 void TracingController::Thaw(JSONObject agent_state) {
@@ -273,6 +265,7 @@ void TracingController::OnStopTracing(
       base::JSONReader::Read(events_str_ptr->data(), base::JSON_PARSE_RFC);
 
   if (!root.get()) {
+    LOG(INFO) << "YO THOR STRING IS " << events_str_ptr->data() << std::endl;
     LOG(ERROR) << "Couldn't parse the events string.";
   }
 

@@ -93,6 +93,10 @@ class TraceV8Agent : public TracingAgent {
   base::trace_event::TraceResultBuffer trace_buffer_;
   base::trace_event::TraceResultBuffer::SimpleOutput json_output_;
 
+  std::ostringstream v8_stream_;
+  v8::platform::tracing::TraceWriter* v8_writer_;
+  v8::platform::tracing::TraceBuffer* v8_buffer_;
+  v8::platform::tracing::TraceConfig* v8_config_;
   std::unique_ptr<v8::platform::tracing::TracingController> v8_tracing_;
 };
 
