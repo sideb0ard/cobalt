@@ -106,8 +106,7 @@ void TraceEventAgent::CollectTraceData(
 }
 
 ///////////////// TRACE V8 AGENT ///////////////////////////////////
-TraceV8Agent::TraceV8Agent()
-    : v8_tracing_(new v8::platform::tracing::TracingController()) {
+TraceV8Agent::TraceV8Agent() {
   LOG(INFO) << "YO THOR - NEW TRACE v8 AGENT - CTRO!";
 }
 
@@ -117,27 +116,38 @@ void TraceV8Agent::StartAgentTracing(const TraceConfig& trace_config,
   json_output_.json_output.clear();
   trace_buffer_.SetOutputCallback(json_output_.GetCallback());
 
+  auto* tracing_controller =
+      static_cast<v8::platform::tracing::TracingController*>(
+          i::V8::GetCurrentPlatform()->GetTracingController());
 
-  v8_writer_ =
+  auto v8_writer =
       v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(v8_stream_);
 
   v8_buffer_ = v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
-      v8::platform::tracing::TraceBuffer::kRingBufferChunks, v8_writer_);
+      v8::platform::tracing::TraceBuffer::kRingBufferChunks, v8_writer);
 
-  v8_tracing_->Initialize(v8_buffer_);
-  v8_config_ = v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
-  v8_tracing_->StartTracing(v8_config_);
+  tracing_controller->Initialize(v8_buffer_);
+  // v8_tracing_->Initialize(v8_buffer_);
+
+  auto v8_config =
+      v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
+  tracing_controller->StartTracing(v8_config);
 
   std::move(callback).Run(agent_name_, true);
 }
 
 void TraceV8Agent::StopAgentTracing(StopAgentTracingCallback callback) {
   LOG(INFO) << "YO THOR - V8 AGENT _ SOPT TRACING";
-  v8_tracing_->StopTracing();
   LOG(INFO) << "YO THOR - V8 AGENT _ FLUSH BUFFER";
-  v8_buffer_->Flush();
+
+  auto* tracing_controller =
+      static_cast<v8::platform::tracing::TracingController*>(
+          i::V8::GetCurrentPlatform()->GetTracingController());
+
+  tracing_controller->StopTracing();
 
   std::string json_out = v8_stream_.str();
+  LOG(INFO) << "MA STREAM!" << json_out;
   std::move(callback).Run(agent_name_, agent_event_label_,
                           base::RefCountedString::TakeString(&json_out));
 }
