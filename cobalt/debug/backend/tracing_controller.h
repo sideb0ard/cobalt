@@ -30,6 +30,7 @@
 #include "cobalt/debug/backend/debug_dispatcher.h"
 #include "cobalt/debug/command.h"
 #include "cobalt/script/script_debugger.h"
+#include "third_party/v8/include/libplatform/v8-tracing.h"
 
 namespace cobalt {
 namespace debug {
@@ -71,15 +72,10 @@ class TraceEventAgent : public TracingAgent {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TraceV8Agent : public TracingAgent,
-                     public script::ScriptDebugger::TraceDelegate {
+class TraceV8Agent : public TracingAgent {
  public:
-  explicit TraceV8Agent(script::ScriptDebugger* script_debugger);
+  TraceV8Agent();
   ~TraceV8Agent() = default;
-
-  // TraceDelegate Interface
-  void AppendTraceEvent(const std::string& trace_event_json) override;
-  void FlushTraceEvents() override;
 
   // TracingAgent Interface
   std::string GetTracingAgentName() override { return agent_name_; }
@@ -95,12 +91,10 @@ class TraceV8Agent : public TracingAgent,
   StopAgentTracingCallback on_stop_callback_;
 
   THREAD_CHECKER(thread_checker_);
-  script::ScriptDebugger* script_debugger_;
-
-  // size_t collected_size_;
-  // JSONList collected_events_;
-  base::trace_event::TraceResultBuffer trace_buffer_;
-  base::trace_event::TraceResultBuffer::SimpleOutput json_output_;
+  std::stringstream json_stream_;
+  std::string json_stream_str_;
+  // scoped_refptr<base::RefCountedString> json_str_ptr_;
+  v8::platform::tracing::TraceConfig trace_config_;
 };
 
 //////////////////////////////////////////////////////////////////////////////

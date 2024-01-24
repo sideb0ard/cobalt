@@ -22,7 +22,9 @@
 #include "base/threading/thread.h"
 #include "base/trace_event/trace_event.h"
 #include "base/values.h"
+#include "cobalt/base/polymorphic_downcast.h"
 #include "cobalt/script/script_debugger.h"
+#include "cobalt/script/v8c/isolate_fellowship.h"
 #include "starboard/common/string.h"
 
 namespace cobalt {
@@ -52,6 +54,11 @@ void TraceEventAgent::StartAgentTracing(
   base::trace_event::TraceLog* tracelog =
       base::trace_event::TraceLog::GetInstance();
   DCHECK(!tracelog->IsEnabled());
+  std::vector<std::string> categories;
+  tracelog->GetKnownCategoryGroups(&categories);
+  for (const auto& c : categories) {
+    LOG(INFO) << "YO THOR! " << c;
+  }
 
   tracelog->SetEnabled(trace_config,
                        base::trace_event::TraceLog::RECORDING_MODE);
@@ -104,38 +111,58 @@ void TraceEventAgent::CollectTraceData(
 }
 
 ///////////////// TRACE V8 AGENT ///////////////////////////////////
-TraceV8Agent::TraceV8Agent(script::ScriptDebugger* script_debugger)
-    : script_debugger_(script_debugger) {}
-
-void TraceV8Agent::AppendTraceEvent(const std::string& trace_event_json) {
-  trace_buffer_.AddFragment(trace_event_json);
-}
-
-void TraceV8Agent::FlushTraceEvents() {
-  trace_buffer_.Finish();
-  std::move(on_stop_callback_)
-      .Run(agent_name_, agent_event_label_,
-           base::RefCountedString::TakeString(&json_output_.json_output));
+TraceV8Agent::TraceV8Agent() {
+  LOG(INFO) << "YO THOR - V8 TRACE AGENT! CTOOOOR";
 }
 
 void TraceV8Agent::StartAgentTracing(const TraceConfig& trace_config,
                                      StartAgentTracingCallback callback) {
-  json_output_.json_output.clear();
-  trace_buffer_.SetOutputCallback(json_output_.GetCallback());
-  trace_buffer_.Start();
+  LOG(INFO) << "YO THOR - START V8 TRACE AGENT!";
 
-  script_debugger_->StartTracing(std::vector<std::string>(), this);
+  auto v8_tracing_controller =
+      base::polymorphic_downcast<v8::platform::tracing::TracingController*>(
+          script::v8c::IsolateFellowship::GetInstance()
+              ->platform->GetTracingController());
+
+  // reset stringstream
+  std::stringstream temp;
+  json_stream_.swap(temp);
+
+  v8::platform::tracing::TraceBuffer* trace_buffer =
+      v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
+          v8::platform::tracing::TraceBuffer::kRingBufferChunks,
+          v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(
+              json_stream_));
+
+  v8_tracing_controller->Initialize(trace_buffer);
+  v8_tracing_controller->StartTracing(&trace_config_);
+
   std::move(callback).Run(agent_name_, true);
 }
 
 void TraceV8Agent::StopAgentTracing(StopAgentTracingCallback callback) {
-  on_stop_callback_ = std::move(callback);
-  script_debugger_->StopTracing();
+  auto v8_tracing_controller =
+      base::polymorphic_downcast<v8::platform::tracing::TracingController*>(
+          script::v8c::IsolateFellowship::GetInstance()
+              ->platform->GetTracingController());
+  v8_tracing_controller->StopTracing();
+
+  // json_str_ptr_ = base::MakeRefCounted<base::RefCountedString>();
+  // json_str_ptr_->data() = json_stream_.str();
+
+  LOG(INFO) << "YO THOR! JSON STREING STREAM: " << json_stream_.str();
+  json_stream_str_ = json_stream_.str();
+  std::move(callback).Run(
+      agent_name_, agent_event_label_,
+      base::RefCountedString::TakeString(&json_stream_str_));
+  // on_stop_callback_ = std::move(callback);
+  // script_debugger_->StopTracing();
 }
 
 ///////////////// TRACING CONTROLLER //////////////////////////////////
-TracingController::TracingController(DebugDispatcher* dispatcher,
-                                     script::ScriptDebugger* script_debugger)
+TracingController::TracingController(
+    DebugDispatcher* dispatcher,
+    [[maybe_unused]] script::ScriptDebugger* script_debugger)
     : dispatcher_(dispatcher),
       tracing_started_(false),
       collected_size_(0),
@@ -148,7 +175,7 @@ TracingController::TracingController(DebugDispatcher* dispatcher,
       base::Bind(&TracingController::Start, base::Unretained(this));
 
   agents_.push_back(std::make_unique<TraceEventAgent>());
-  // agents_.push_back(std::make_unique<TraceV8Agent>(script_debugger));
+  agents_.push_back(std::make_unique<TraceV8Agent>());
 }
 
 void TracingController::Thaw(JSONObject agent_state) {
@@ -163,7 +190,8 @@ void TracingController::Thaw(JSONObject agent_state) {
   tracing_started_ = agent_state->FindKey(kStarted)->GetBool();
   if (tracing_started_) {
     agents_responded_ = 0;
-    auto config = base::trace_event::TraceConfig();
+    auto config = base::trace_event::TraceConfig("devtools.timeline,v8", "");
+    // auto config = base::trace_event::TraceConfig();
     for (const auto& a : agents_) {
       a->StartAgentTracing(config,
                            base::BindOnce(&TracingController::OnStartTracing,
@@ -252,6 +280,7 @@ void TracingController::OnStopTracing(
     const scoped_refptr<base::RefCountedString>& events_str_ptr) {
   LOG(INFO) << "Tracing Agent:" << agent_name << " Stop tracing.";
 
+  LOG(INFO) << "YO THOR!" << events_str_ptr;
   std::unique_ptr<base::Value> root =
       base::JSONReader::Read(events_str_ptr->data(), base::JSON_PARSE_RFC);
 

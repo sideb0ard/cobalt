@@ -29,6 +29,7 @@ V8cTracingController::V8cTracingController()
   // implementation saves us from having to implement our own, in particular the
   // trouble of |GetEventByHandle| that allows V8 to update the duration of
   // already-written events when they end.
+  LOG(INFO) << "YO THOR! v8CCCC TRcing COntrolla";
   v8::platform::tracing::TraceBuffer* trace_buffer =
       v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
           v8::platform::tracing::TraceBuffer::kRingBufferChunks,
@@ -40,6 +41,7 @@ void V8cTracingController::StartTracing(
     const std::vector<std::string>& categories,
     ScriptDebugger::TraceDelegate* trace_delegate) {
   trace_delegate_ = trace_delegate;
+  LOG(INFO) << "YO THOR! v8CCCC STATARTARTA TRcing";
   v8::platform::tracing::TraceConfig* trace_config =
       v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
   for (auto it = categories.begin(); it != categories.end(); ++it) {
