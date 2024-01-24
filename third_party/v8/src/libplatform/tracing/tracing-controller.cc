@@ -6,7 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <iostream>
+
 #include "include/libplatform/v8-tracing.h"
+#include "src/base/logging.h"
 
 #include "src/base/atomicops.h"
 #include "src/base/platform/mutex.h"
@@ -28,7 +31,9 @@
 #ifdef V8_USE_PERFETTO
 class JsonOutputWriter : public perfetto::trace_processor::json::OutputWriter {
  public:
-  explicit JsonOutputWriter(std::ostream* stream) : stream_(stream) {}
+  explicit JsonOutputWriter(std::ostream* stream) : stream_(stream) {
+    std::cout << "YO THOR - JSON OUTPUT WRITER CTRO" << std::endl;
+  }
 
   perfetto::trace_processor::util::Status AppendString(
       const std::string& string) override {
@@ -71,9 +76,13 @@ const int g_num_builtin_categories = 3;
 v8::base::AtomicWord g_category_index = g_num_builtin_categories;
 #endif  // !defined(V8_USE_PERFETTO)
 
-TracingController::TracingController() { mutex_.reset(new base::Mutex()); }
+TracingController::TracingController() { mutex_.reset(new base::Mutex()); 
+
+    std::cout << "YO THOR - V8 PLATFORM TRACE CONTROLRRR CTRO" << std::endl;
+}
 
 TracingController::~TracingController() {
+    std::cout << "YO THOR - V8 PLATFORM TRACE CONTROLRRR DTOR" << std::endl;
   StopTracing();
 
 #if !defined(V8_USE_PERFETTO)
@@ -181,6 +190,7 @@ const char* TracingController::GetCategoryGroupName(
 #endif  // !defined(V8_USE_PERFETTO)
 
 void TracingController::StartTracing(TraceConfig* trace_config) {
+    std::cout << "YO THOR - V8 START TRACING" << std::endl;
 #ifdef V8_USE_PERFETTO
   DCHECK_NOT_NULL(output_stream_);
   DCHECK(output_stream_->good());
@@ -222,6 +232,7 @@ void TracingController::StartTracing(TraceConfig* trace_config) {
 }
 
 void TracingController::StopTracing() {
+    std::cout << "YO THOR - V8 STOP TRACING" << std::endl;
   bool expected = true;
   if (!recording_.compare_exchange_strong(expected, false)) {
     return;

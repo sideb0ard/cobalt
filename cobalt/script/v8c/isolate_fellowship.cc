@@ -88,10 +88,9 @@ IsolateFellowship::IsolateFellowship() {
   // TODO: Initialize V8 ICU stuff here as well.
   platform.reset(new CobaltPlatform(v8::platform::NewDefaultPlatform(
       0 /*thread_pool_size*/, v8::platform::IdleTaskSupport::kDisabled,
-      v8::platform::InProcessStackDumping::kEnabled,
-      // nullptr
-      // std::unique_ptr<v8::TracingController>(new V8cTracingController())
-      std::make_unique<v8::platform::tracing::TracingController>())));
+      v8::platform::InProcessStackDumping::kEnabled, nullptr)));
+  // std::unique_ptr<v8::TracingController>(new V8cTracingController())
+  // std::make_unique<v8::platform::tracing::TracingController>())));
   v8::V8::InitializePlatform(platform.get());
   v8::V8::Initialize();
   array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();

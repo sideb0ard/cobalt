@@ -5,6 +5,7 @@
 #include "src/libplatform/tracing/trace-writer.h"
 
 #include <cmath>
+#include <iostream>
 
 #include "v8/src/tracing/trace_event_common.h"
 #include "include/v8-platform.h"
@@ -119,16 +120,22 @@ void JSONTraceWriter::AppendArgValue(ConvertableToTraceFormat* value) {
 }
 
 JSONTraceWriter::JSONTraceWriter(std::ostream& stream)
-    : JSONTraceWriter(stream, "traceEvents") {}
+    : JSONTraceWriter(stream, "traceEvents") {
+                                              std::cout << "YO THOR - JSON TRACE WRITER CTROR" << std::endl;
+
+    }
 
 JSONTraceWriter::JSONTraceWriter(std::ostream& stream, const std::string& tag)
     : stream_(stream) {
   stream_ << "{\"" << tag << "\":[";
 }
 
-JSONTraceWriter::~JSONTraceWriter() { stream_ << "]}"; }
+JSONTraceWriter::~JSONTraceWriter() { stream_ << "]}";
+                                              std::cout << "YO THOR - JSON TRACE WRITER DSTROR" << std::endl;
+}
 
 void JSONTraceWriter::AppendTraceEvent(TraceObject* trace_event) {
+                                              std::cout << "YO THOR - JSON TRACE WRITER APPEND EVENT" << std::endl;
   if (append_comma_) stream_ << ",";
   append_comma_ = true;
   stream_ << "{\"pid\":" << trace_event->pid()
@@ -182,6 +189,7 @@ void JSONTraceWriter::AppendTraceEvent(TraceObject* trace_event) {
 void JSONTraceWriter::Flush() {}
 
 TraceWriter* TraceWriter::CreateJSONTraceWriter(std::ostream& stream) {
+  std::cout << "YO THOR - TRACE WRITER CRETA JSON TRACE WRITER" << std::endl;
   return new JSONTraceWriter(stream);
 }
 

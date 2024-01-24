@@ -128,13 +128,15 @@ void TraceV8Agent::StartAgentTracing(const TraceConfig& trace_config,
   std::stringstream temp;
   json_stream_.swap(temp);
 
-  v8::platform::tracing::TraceBuffer* trace_buffer =
+  trace_writer_.reset(
+      v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(json_stream_));
+
+  trace_buffer_.reset(
       v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
           v8::platform::tracing::TraceBuffer::kRingBufferChunks,
-          v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(
-              json_stream_));
+          trace_writer_.get()));
 
-  v8_tracing_controller->Initialize(trace_buffer);
+  v8_tracing_controller->Initialize(trace_buffer_.get());
   v8_tracing_controller->StartTracing(&trace_config_);
 
   std::move(callback).Run(agent_name_, true);
@@ -146,6 +148,8 @@ void TraceV8Agent::StopAgentTracing(StopAgentTracingCallback callback) {
           script::v8c::IsolateFellowship::GetInstance()
               ->platform->GetTracingController());
   v8_tracing_controller->StopTracing();
+  trace_buffer_.reset(nullptr);
+  // trace_writer_.reset(nullptr);
 
   // json_str_ptr_ = base::MakeRefCounted<base::RefCountedString>();
   // json_str_ptr_->data() = json_stream_.str();
@@ -174,7 +178,7 @@ TracingController::TracingController(
   commands_["start"] =
       base::Bind(&TracingController::Start, base::Unretained(this));
 
-  agents_.push_back(std::make_unique<TraceEventAgent>());
+  // agents_.push_back(std::make_unique<TraceEventAgent>());
   agents_.push_back(std::make_unique<TraceV8Agent>());
 }
 
@@ -280,7 +284,7 @@ void TracingController::OnStopTracing(
     const scoped_refptr<base::RefCountedString>& events_str_ptr) {
   LOG(INFO) << "Tracing Agent:" << agent_name << " Stop tracing.";
 
-  LOG(INFO) << "YO THOR!" << events_str_ptr;
+  LOG(INFO) << "YO THOR!" << events_str_ptr->data();
   std::unique_ptr<base::Value> root =
       base::JSONReader::Read(events_str_ptr->data(), base::JSON_PARSE_RFC);
 
@@ -291,19 +295,26 @@ void TracingController::OnStopTracing(
   base::ListValue* root_list = nullptr;
   root->GetAsList(&root_list);
 
-  // Move items into our aggregate collection
-  while (root_list->GetSize()) {
-    if (!collected_events_) {
-      collected_events_.reset(new base::ListValue());
-    }
-    std::unique_ptr<base::Value> item;
-    root_list->Remove(0, &item);
-    collected_events_->Append(std::move(item));
+  LOG(INFO) << "YO THOR! WHILLLLE";
+  if (root_list) {
+    LOG(INFO) << "YO THOR! GET SIZE!" << root_list->GetSize();
+    // Move items into our aggregate collection
+    while (root_list->GetSize()) {
+      if (!collected_events_) {
+        collected_events_.reset(new base::ListValue());
+      }
+      std::unique_ptr<base::Value> item;
+      root_list->Remove(0, &item);
+      collected_events_->Append(std::move(item));
 
-    if (collected_events_->GetSize() >= 100) {
-      SendDataCollectedEvent();
+      if (collected_events_->GetSize() >= 100) {
+        SendDataCollectedEvent();
+      }
     }
+  } else {
+    LOG(INFO) << "NAE ROOT LIST!";
   }
+  LOG(INFO) << "YO THOR! ABOUT TO FLUSH";
   FlushTraceEvents();
 }
 

@@ -1,6 +1,8 @@
 // Copyright 2016 the V8 project authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+//
+#include <iostream>
 
 #include "src/libplatform/tracing/trace-buffer.h"
 
@@ -11,8 +13,12 @@ namespace tracing {
 TraceBufferRingBuffer::TraceBufferRingBuffer(size_t max_chunks,
                                              TraceWriter* trace_writer)
     : max_chunks_(max_chunks) {
+  std::cout << "YOYOYOYO THOR - TRACE RING BUFFER CTOR\n";
   trace_writer_.reset(trace_writer);
   chunks_.resize(max_chunks);
+}
+TraceBufferRingBuffer::~TraceBufferRingBuffer() {
+  std::cout << "YOYOYOYO THOR - TRACE RING BUFFER DDCTOR\n";
 }
 
 TraceObject* TraceBufferRingBuffer::AddTraceEvent(uint64_t* handle) {
@@ -99,6 +105,7 @@ TraceObject* TraceBufferChunk::AddTraceEvent(size_t* event_index) {
 
 TraceBuffer* TraceBuffer::CreateTraceBufferRingBuffer(
     size_t max_chunks, TraceWriter* trace_writer) {
+  std::cout << "YOYOYOYO THOR - V8 LIBP CREATE TRACE RING BUFFER\n";
   return new TraceBufferRingBuffer(max_chunks, trace_writer);
 }
 

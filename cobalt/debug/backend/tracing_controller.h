@@ -95,6 +95,8 @@ class TraceV8Agent : public TracingAgent {
   std::string json_stream_str_;
   // scoped_refptr<base::RefCountedString> json_str_ptr_;
   v8::platform::tracing::TraceConfig trace_config_;
+  std::unique_ptr<v8::platform::tracing::TraceBuffer> trace_buffer_;
+  std::unique_ptr<v8::platform::tracing::TraceWriter> trace_writer_;
 };
 
 //////////////////////////////////////////////////////////////////////////////
