@@ -34,6 +34,7 @@ const int ProgressiveParser::kInitialHeaderSize = 9;
   DCHECK(parser);
   DCHECK(media_log);
   *parser = NULL;
+  LOG(INFO) << "YO THOR - PROGFR PARSR CONSTRUCT";
 
   // download first kInitialHeaderSize bytes of stream to determine file type
   // and extract basic container-specific stream configuration information
@@ -48,7 +49,9 @@ const int ProgressiveParser::kInitialHeaderSize = 9;
 }
 
 ProgressiveParser::ProgressiveParser(scoped_refptr<DataSourceReader> reader)
-    : reader_(reader), duration_(::media::kInfiniteDuration) {}
+    : reader_(reader), duration_(::media::kInfiniteDuration) {
+  LOG(INFO) << "YO THOR - PROGFR PARSR CTRO";
+}
 
 ProgressiveParser::~ProgressiveParser() {}
 

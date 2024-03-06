@@ -48,12 +48,14 @@ ProgressiveDemuxerStream::ProgressiveDemuxerStream(ProgressiveDemuxer* demuxer,
     : demuxer_(demuxer), type_(type) {
   TRACE_EVENT0("media_stack",
                "ProgressiveDemuxerStream::ProgressiveDemuxerStream()");
+  LOG(INFO) << "YO THOR - PROFEESSSIVE DEMUXER STREAM! " << type;
   DCHECK(demuxer_);
 }
 
 void ProgressiveDemuxerStream::Read(int max_number_of_buffers_to_read,
                                     ReadCB read_cb) {
   TRACE_EVENT0("media_stack", "ProgressiveDemuxerStream::Read()");
+  LOG(INFO) << "YO THOR _ READ DEMUXER STREAM PROGRSSV";
   DCHECK(!read_cb.is_null());
 
   base::AutoLock auto_lock(lock_);
@@ -61,6 +63,7 @@ void ProgressiveDemuxerStream::Read(int max_number_of_buffers_to_read,
   // Don't accept any additional reads if we've been told to stop.
   // The demuxer_ may have been destroyed in the pipeline thread.
   if (stopped_) {
+    LOG(INFO) << "YO THOR - SDTOOPD";
     TRACE_EVENT0("media_stack", "ProgressiveDemuxerStream::Read() EOS sent.");
     std::move(read_cb).Run(DemuxerStream::kOk,
                            {DecoderBuffer::CreateEOSBuffer()});
@@ -71,6 +74,7 @@ void ProgressiveDemuxerStream::Read(int max_number_of_buffers_to_read,
   DCHECK(buffer_queue_.empty() || read_queue_.empty());
 
   if (!buffer_queue_.empty()) {
+    LOG(INFO) << "YO THOR - BUFFER Q NOT EMPYTU";
     // Send the oldest buffer back.
     scoped_refptr<DecoderBuffer> buffer = buffer_queue_.front();
     if (buffer->end_of_stream()) {
@@ -83,6 +87,7 @@ void ProgressiveDemuxerStream::Read(int max_number_of_buffers_to_read,
     }
     std::move(read_cb).Run(DemuxerStream::kOk, {buffer});
   } else {
+    LOG(INFO) << "YO THOR - READ QD";
     TRACE_EVENT0("media_stack",
                  "ProgressiveDemuxerStream::Read() request queued.");
     read_queue_.push_back(std::move(read_cb));
@@ -110,6 +115,7 @@ void ProgressiveDemuxerStream::EnableBitstreamConverter() { NOTIMPLEMENTED(); }
 
 void ProgressiveDemuxerStream::EnqueueBuffer(
     scoped_refptr<DecoderBuffer> buffer) {
+  LOG(INFO) << "YO THOR - ENQUEUE BUFFER!";
   TRACE_EVENT1(
       "media_stack", "ProgressiveDemuxerStream::EnqueueBuffer()", "timestamp",
       buffer->end_of_stream() ? -1 : buffer->timestamp().InMicroseconds());
@@ -123,6 +129,7 @@ void ProgressiveDemuxerStream::EnqueueBuffer(
   }
 
   if (buffer->end_of_stream()) {
+    LOG(INFO) << "YO THOR - ENQUEUE BUFFER! EOS received NOM";
     TRACE_EVENT0("media_stack",
                  "ProgressiveDemuxerStream::EnqueueBuffer() EOS received.");
   } else if (buffer->timestamp() != kNoTimestamp) {
@@ -216,6 +223,7 @@ ProgressiveDemuxer::ProgressiveDemuxer(
   DCHECK(media_log_);
   reader_ = new DataSourceReader();
   reader_->SetDataSource(data_source_);
+  LOG(INFO) << "YO THOR PROGRESSIVE DEMUXER CTOR";
 }
 
 ProgressiveDemuxer::~ProgressiveDemuxer() {
@@ -247,6 +255,7 @@ void ProgressiveDemuxer::Initialize(DemuxerHost* host,
     return;
   }
 
+  LOG(INFO) << "YO THOR - PROGR INIITZ";
   blocking_thread_.task_runner()->PostTask(
       FROM_HERE, base::BindOnce(&ProgressiveDemuxer::ParseConfigBlocking,
                                 base::Unretained(this), std::move(status_cb)));
@@ -256,6 +265,7 @@ void ProgressiveDemuxer::ParseConfigBlocking(PipelineStatusCallback status_cb) {
   DCHECK(blocking_thread_.task_runner()->BelongsToCurrentThread());
   DCHECK(!parser_);
 
+  LOG(INFO) << "YO THOR - PROg PARSE CONFIG BLOCKING";
   // construct stream parser with error callback
   PipelineStatus status =
       ProgressiveParser::Construct(reader_, &parser_, media_log_);
@@ -292,6 +302,7 @@ void ProgressiveDemuxer::ParseConfigBlocking(PipelineStatusCallback status_cb) {
 
   // successful parse of config data, inform the nonblocking demuxer thread
   DCHECK_EQ(status, ::media::PIPELINE_OK);
+  LOG(INFO) << "YO THOR - PARSE CONFIG DONE - WILL CALL STATUS CB";
   ParseConfigDone(std::move(status_cb), ::media::PIPELINE_OK);
 }
 
@@ -316,12 +327,14 @@ void ProgressiveDemuxer::ParseConfigDone(PipelineStatusCallback status_cb,
 }
 
 void ProgressiveDemuxer::Request(DemuxerStream::Type type) {
+  LOG(INFO) << "YO PROGR DMX REQ";
   if (!blocking_thread_.task_runner()->BelongsToCurrentThread()) {
     blocking_thread_.task_runner()->PostTask(
         FROM_HERE,
         base::Bind(&ProgressiveDemuxer::Request, base::Unretained(this), type));
     return;
   }
+  LOG(INFO) << "YO ON RIGHT THREAD DMX REQ";
 
   DCHECK(!requested_au_) << "overlapping requests not supported!";
   flushing_ = false;
@@ -335,6 +348,7 @@ void ProgressiveDemuxer::Request(DemuxerStream::Type type) {
     }
     return;
   }
+  LOG(INFO) << "YO GOT AU";
 
   // make sure we got back an AU of the correct type
   DCHECK(au->GetType() == type);
@@ -363,11 +377,14 @@ void ProgressiveDemuxer::Request(DemuxerStream::Type type) {
   // enqueue the request
   requested_au_ = au;
 
+  LOG(INFO) << "YO GOT REQ AU";
   AllocateBuffer();
 }
 
 void ProgressiveDemuxer::AllocateBuffer() {
   DCHECK(requested_au_);
+
+  LOG(INFO) << "YO THOR ALLOCATE BUFFER";
 
   if (HasStopCalled()) {
     return;

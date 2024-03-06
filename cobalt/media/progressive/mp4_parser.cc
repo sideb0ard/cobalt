@@ -19,6 +19,7 @@
 #include <limits>
 #include <vector>
 
+#include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "cobalt/media/base/endian_util.h"
 #include "starboard/types.h"
@@ -74,6 +75,8 @@ static const int kMapTableAtomCacheEntries_ctts = 51543 / kEntrySize_ctts;
   DCHECK(parser);
   DCHECK(media_log);
   *parser = NULL;
+
+  LOG(INFO) << "YO THOR! MP4 CONSTRUCT YO";
 
   // detect mp4 stream by looking for ftyp atom at top of file
   uint32 ftyp = endian_util::load_uint32_big_endian(construction_header + 4);

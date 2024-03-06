@@ -275,6 +275,7 @@ void WebMediaPlayerImpl::LoadProgressive(
   DCHECK_EQ(main_loop_, base::MessageLoop::current());
 
   UMA_HISTOGRAM_ENUMERATION("Media.URLScheme", URLScheme(url), kMaxURLScheme);
+  LOG(INFO) << "YO THOR PROGRSSSSSSV";
   LOG(INFO) << "Start PROGRESSIVE playback";
 
   // Handle any volume changes that occurred before load().
@@ -299,6 +300,7 @@ void WebMediaPlayerImpl::LoadProgressive(
   } else {
     // Either the demuxer Cobalt extension was not provided, or it failed to
     // create a demuxer; fall back to the ProgressiveDemuxer.
+    LOG(INFO) << "THOR Using COBALT ProgressiveDemuxer.";
     LOG(INFO) << "Using ProgressiveDemuxer.";
     progressive_demuxer_.reset(new ProgressiveDemuxer(
         pipeline_thread_.task_runner(), proxy_->data_source(), media_log_));

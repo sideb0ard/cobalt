@@ -29,6 +29,20 @@ target(final_executable_type, "media_sandbox") {
   ]
 }
 
+target(final_executable_type, "media_progressive_sandbox") {
+  testonly = true
+  sources = [ "media_progressive_sandbox.cc" ]
+
+  deps = [
+    "//cobalt//browser:test_dependencies_on_browser",
+    "//cobalt/base",
+    "//cobalt/math",
+    "//cobalt/media",
+    "//starboard:starboard_group",
+    "//third_party/chromium/media",
+  ]
+}
+
 target(final_executable_type, "web_media_player_sandbox") {
   testonly = true
   sources = [
