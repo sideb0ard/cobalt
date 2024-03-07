@@ -77,7 +77,7 @@ constexpr uintptr_t AslrMask(uintptr_t bits) {
     constexpr uintptr_t kASLRMask = AslrMask(38);
     constexpr uintptr_t kASLROffset = AslrAddress(0x1000000000ULL);
 
-  #elif defined(OS_POSIX) || defined(OS_FUCHSIA)
+  #elif defined(OS_POSIX) || defined(OS_FUCHSIA) || defined(STARBOARD)
 
     #if defined(ARCH_CPU_X86_64)
 

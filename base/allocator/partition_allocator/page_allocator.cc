@@ -22,7 +22,7 @@
 
 #if defined(OS_WIN)
 #include "base/allocator/partition_allocator/page_allocator_internals_win.h"
-#elif defined(OS_POSIX) || defined(OS_FUCHSIA)
+#elif defined(OS_POSIX) || defined(OS_FUCHSIA) || defined(STARBOARD)
 #include "base/allocator/partition_allocator/page_allocator_internals_posix.h"
 #include "starboard/types.h"
 #else

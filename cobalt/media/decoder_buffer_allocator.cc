@@ -1,4 +1,4 @@
-// Copyright 2017 The Cobalt Authors. All Rights Reserved.
+// Copyright 2024 The Cobalt Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,88 +33,23 @@ using starboard::ScopedLock;
 
 const bool kEnableAllocationLog = false;
 
-const size_t kAllocationRecordGranularity = 512 * 1024;
-// Used to determine if the memory allocated is large. The underlying logic can
-// be different.
-const size_t kSmallAllocationThreshold = 512;
+constexpr char* type_name = nullptr;
 
 }  // namespace
 
-DecoderBufferAllocator::DecoderBufferAllocator()
-    : using_memory_pool_(SbMediaIsBufferUsingMemoryPool()),
-      is_memory_pool_allocated_on_demand_(
-          SbMediaIsBufferPoolAllocateOnDemand()),
-      initial_capacity_(SbMediaGetInitialBufferCapacity()),
-      allocation_unit_(SbMediaGetBufferAllocationUnit()) {
-  if (!using_memory_pool_) {
-    DLOG(INFO) << "Allocated media buffer memory using malloc* functions.";
-    Allocator::Set(this);
-    return;
-  }
-
-  if (is_memory_pool_allocated_on_demand_) {
-    DLOG(INFO) << "Allocated media buffer pool on demand.";
-    Allocator::Set(this);
-    return;
-  }
-
-  ScopedLock scoped_lock(mutex_);
-  EnsureReuseAllocatorIsCreated();
+DecoderBufferAllocator::DecoderBufferAllocator() {
+  allocator_.init();
   Allocator::Set(this);
 }
 
-DecoderBufferAllocator::~DecoderBufferAllocator() {
-  Allocator::Set(nullptr);
+DecoderBufferAllocator::~DecoderBufferAllocator() { Allocator::Set(nullptr); }
 
-  if (!using_memory_pool_) {
-    return;
-  }
+void DecoderBufferAllocator::Suspend() {}
 
-  ScopedLock scoped_lock(mutex_);
-
-  if (reuse_allocator_) {
-    DCHECK_EQ(reuse_allocator_->GetAllocated(), 0);
-    reuse_allocator_.reset();
-  }
-}
-
-void DecoderBufferAllocator::Suspend() {
-  if (!using_memory_pool_ || is_memory_pool_allocated_on_demand_) {
-    return;
-  }
-
-  ScopedLock scoped_lock(mutex_);
-
-  if (reuse_allocator_ && reuse_allocator_->GetAllocated() == 0) {
-    DLOG(INFO) << "Freed " << reuse_allocator_->GetCapacity()
-               << " bytes of media buffer pool `on suspend`.";
-    reuse_allocator_.reset();
-  }
-}
-
-void DecoderBufferAllocator::Resume() {
-  if (!using_memory_pool_ || is_memory_pool_allocated_on_demand_) {
-    return;
-  }
-
-  ScopedLock scoped_lock(mutex_);
-  EnsureReuseAllocatorIsCreated();
-}
+void DecoderBufferAllocator::Resume() {}
 
 void* DecoderBufferAllocator::Allocate(size_t size, size_t alignment) {
-  if (!using_memory_pool_) {
-    sbmemory_bytes_used_.fetch_add(size);
-    void* p = nullptr;
-    posix_memalign(&p, alignment, size);
-    CHECK(p);
-    return p;
-  }
-
-  ScopedLock scoped_lock(mutex_);
-
-  EnsureReuseAllocatorIsCreated();
-
-  void* p = reuse_allocator_->Allocate(size, alignment);
+  void* p = allocator_.root()->Alloc(size, type_name);
   CHECK(p);
 
   LOG_IF(INFO, kEnableAllocationLog)
@@ -127,27 +62,7 @@ void DecoderBufferAllocator::Free(void* p, size_t size) {
     DCHECK_EQ(size, 0);
     return;
   }
-
-  if (!using_memory_pool_) {
-    sbmemory_bytes_used_.fetch_sub(size);
-    free(p);
-    return;
-  }
-
-  ScopedLock scoped_lock(mutex_);
-
-  DCHECK(reuse_allocator_);
-
-  LOG_IF(INFO, kEnableAllocationLog) << "Media Allocation Log " << p;
-
-  reuse_allocator_->Free(p);
-  if (is_memory_pool_allocated_on_demand_) {
-    if (reuse_allocator_->GetAllocated() == 0) {
-      DLOG(INFO) << "Freed " << reuse_allocator_->GetCapacity()
-                 << " bytes of media buffer pool `on demand`.";
-      reuse_allocator_.reset();
-    }
-  }
+  allocator_.root()->Free(p);
 }
 
 int DecoderBufferAllocator::GetAudioBufferBudget() const {
@@ -197,44 +112,12 @@ int DecoderBufferAllocator::GetVideoBufferBudget(SbMediaVideoCodec codec,
                                      bits_per_pixel);
 }
 
-size_t DecoderBufferAllocator::GetAllocatedMemory() const {
-  if (!using_memory_pool_) {
-    return sbmemory_bytes_used_.load();
-  }
-  ScopedLock scoped_lock(mutex_);
-  return reuse_allocator_ ? reuse_allocator_->GetAllocated() : 0;
-}
+size_t DecoderBufferAllocator::GetAllocatedMemory() const { return 0; }
 
-size_t DecoderBufferAllocator::GetCurrentMemoryCapacity() const {
-  if (!using_memory_pool_) {
-    return sbmemory_bytes_used_.load();
-  }
-  ScopedLock scoped_lock(mutex_);
-  return reuse_allocator_ ? reuse_allocator_->GetCapacity() : 0;
-}
+size_t DecoderBufferAllocator::GetCurrentMemoryCapacity() const { return 0; }
 
 size_t DecoderBufferAllocator::GetMaximumMemoryCapacity() const {
-  ScopedLock scoped_lock(mutex_);
-
-  if (reuse_allocator_) {
-    return std::max<size_t>(reuse_allocator_->max_capacity(),
-                            max_buffer_capacity_);
-  }
   return max_buffer_capacity_;
-}
-
-void DecoderBufferAllocator::EnsureReuseAllocatorIsCreated() {
-  mutex_.DCheckAcquired();
-
-  if (reuse_allocator_) {
-    return;
-  }
-
-  reuse_allocator_.reset(new BidirectionalFitReuseAllocator(
-      &fallback_allocator_, initial_capacity_, kSmallAllocationThreshold,
-      allocation_unit_, 0));
-  DLOG(INFO) << "Allocated " << initial_capacity_
-             << " bytes for media buffer pool.";
 }
 
 }  // namespace media

@@ -18,6 +18,8 @@ assert(!_is_python2, "`python` must resolve to Python 3 when building with GN.")
 declare_args() {
   is_clang = true
 
+  use_partition_alloc = true
+
   build_type = "devel"
 
   is_starboard = true

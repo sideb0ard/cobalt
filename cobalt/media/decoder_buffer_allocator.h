@@ -1,4 +1,4 @@
-// Copyright 2017 The Cobalt Authors. All Rights Reserved.
+// Copyright 2024 The Cobalt Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@
 
 #include <memory>
 
+#include "base/allocator/partition_allocator/partition_alloc.h"
 #include "base/compiler_specific.h"
 #include "base/time/time.h"
-#include "cobalt/media/bidirectional_fit_reuse_allocator.h"
 #include "cobalt/media/decoder_buffer_memory_info.h"
-#include "cobalt/media/starboard_memory_allocator.h"
 #include "starboard/common/atomic.h"
 #include "starboard/common/mutex.h"
 #include "starboard/media.h"
@@ -61,21 +60,9 @@ class DecoderBufferAllocator : public ::media::DecoderBuffer::Allocator,
   size_t GetMaximumMemoryCapacity() const override;
 
  private:
-  void EnsureReuseAllocatorIsCreated();
-
-  const bool using_memory_pool_;
-  const bool is_memory_pool_allocated_on_demand_;
-  const int initial_capacity_;
-  const int allocation_unit_;
-
-  starboard::Mutex mutex_;
-  StarboardMemoryAllocator fallback_allocator_;
-  std::unique_ptr<BidirectionalFitReuseAllocator> reuse_allocator_;
-
   int max_buffer_capacity_ = 0;
 
-  // Monitor memory allocation and use when |using_memory_pool_| is false
-  starboard::atomic_int32_t sbmemory_bytes_used_;
+  base::PartitionAllocatorGeneric allocator_;
 };
 
 }  // namespace media
