@@ -16,6 +16,7 @@
 #define COBALT_MEDIA_DECODER_BUFFER_ALLOCATOR_H_
 
 #include <memory>
+#include <vector>
 
 #include "base/allocator/partition_allocator/partition_alloc.h"
 #include "base/compiler_specific.h"
@@ -29,6 +30,44 @@
 
 namespace cobalt {
 namespace media {
+
+class PartitionAllocStatsDumper : public ::base::PartitionStatsDumper {
+ public:
+  PartitionAllocStatsDumper()
+      : total_resident_bytes(0),
+        total_active_bytes(0),
+        total_decommittable_bytes(0),
+        total_discardable_bytes(0) {}
+
+  void PartitionDumpTotals(const char* partition_name,
+                           const ::base::PartitionMemoryStats* stats) override {
+    LOG(INFO) << "TOTAL MMAPPED BYTES:" << stats->total_mmapped_bytes;
+    LOG(INFO) << "TOTAL RESIDENT BYTES:" << stats->total_resident_bytes;
+    LOG(INFO) << "TOTAL ACTIVE BYTES:" << stats->total_active_bytes;
+    LOG(INFO) << "TOTAL DECOMMITABLE BYTES:"
+              << stats->total_decommittable_bytes;
+    LOG(INFO) << "TOTAL DISCARDABLE BYTES:" << stats->total_discardable_bytes;
+  }
+
+  void PartitionsDumpBucketStats(
+      const char* partition_name,
+      const ::base::PartitionBucketMemoryStats* stats) override {
+    (void)partition_name;
+    bucket_stats.push_back(*stats);
+    total_resident_bytes += stats->resident_bytes;
+    total_active_bytes += stats->active_bytes;
+    total_decommittable_bytes += stats->decommittable_bytes;
+    total_discardable_bytes += stats->discardable_bytes;
+  }
+
+ private:
+  size_t total_resident_bytes;
+  size_t total_active_bytes;
+  size_t total_decommittable_bytes;
+  size_t total_discardable_bytes;
+
+  std::vector<::base::PartitionBucketMemoryStats> bucket_stats;
+};
 
 class DecoderBufferAllocator : public ::media::DecoderBuffer::Allocator,
                                public DecoderBufferMemoryInfo {
@@ -63,6 +102,7 @@ class DecoderBufferAllocator : public ::media::DecoderBuffer::Allocator,
   int max_buffer_capacity_ = 0;
 
   base::PartitionAllocatorGeneric allocator_;
+  PartitionAllocStatsDumper stats_dumper_;
 };
 
 }  // namespace media

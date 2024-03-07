@@ -3269,14 +3269,14 @@ target(gtest_target_type, "base_unittests") {
     # TODO(GYP): dep on copy_test_data_ios action.
   }
 
-  #if (use_partition_alloc) {
-  #  sources += [
-  #    "allocator/partition_allocator/address_space_randomization_unittest.cc",
-  #    "allocator/partition_allocator/page_allocator_unittest.cc",
-  #    "allocator/partition_allocator/partition_alloc_unittest.cc",
-  #    "allocator/partition_allocator/spin_lock_unittest.cc",
-  #  ]
-  #}
+  if (use_partition_alloc) {
+    sources += [
+      "allocator/partition_allocator/address_space_randomization_unittest.cc",
+      "allocator/partition_allocator/page_allocator_unittest.cc",
+      "allocator/partition_allocator/partition_alloc_unittest.cc",
+      "allocator/partition_allocator/spin_lock_unittest.cc",
+    ]
+  }
 
   if (is_mac && !is_starboard) {
     libs = [

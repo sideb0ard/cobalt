@@ -42,7 +42,11 @@ DecoderBufferAllocator::DecoderBufferAllocator() {
   Allocator::Set(this);
 }
 
-DecoderBufferAllocator::~DecoderBufferAllocator() { Allocator::Set(nullptr); }
+DecoderBufferAllocator::~DecoderBufferAllocator() {
+  Allocator::Set(nullptr);
+  allocator_.root()->DumpStats("decoder buffer allocator",
+                               false /* detailed dump */, &stats_dumper_);
+}
 
 void DecoderBufferAllocator::Suspend() {}
 
