@@ -92,6 +92,10 @@ source_set("starboard") {
       "sbplayer_interface.h",
       "sbplayer_set_bounds_helper.cc",
       "sbplayer_set_bounds_helper.h",
+      "starboard_audio_device_factory.cc",
+      "starboard_audio_device_factory.h",
+      "starboard_audio_renderer_sink.cc",
+      "starboard_audio_renderer_sink.h",
       "starboard_cdm.cc",
       "starboard_cdm.h",
       "starboard_cdm_factory.cc",
@@ -113,6 +117,7 @@ source_set("starboard") {
     "//media/renderers",
     "//starboard($starboard_toolchain)",
     "//starboard/common",
+    "//third_party/blink/public:blink_headers",
     "//url",
   ]
 
@@ -121,7 +126,10 @@ source_set("starboard") {
   }
 
   # TODO(b/380940036): remove the circular dependency.
-  allow_circular_includes_from = [ "//media/base" ]
+  allow_circular_includes_from = [
+    "//media/base",
+    "//third_party/blink/public:blink_headers",
+  ]
 
   configs += [ "//media:subcomponent_config" ]
 }

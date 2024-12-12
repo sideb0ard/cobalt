@@ -172,6 +172,7 @@ void InitializeCommon(Platform* platform, mojo::BinderMap* binders) {
 void Initialize(Platform* platform,
                 mojo::BinderMap* binders,
                 scheduler::WebThreadScheduler* main_thread_scheduler) {
+  LOG(INFO) << "YO THOR! INITIALIZE BLINK!!";
   DCHECK(binders);
   Platform::InitializeMainThread(platform, main_thread_scheduler);
   InitializeCommon(platform, binders);

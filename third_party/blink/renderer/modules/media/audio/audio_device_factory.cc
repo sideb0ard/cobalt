@@ -81,12 +81,14 @@ AudioDeviceFactory* AudioDeviceFactory::GetInstance() {
   if (g_factory_override)
     return g_factory_override;
 
+  LOG(INFO) << "YO THOR - AUDIO DEVICE FDACTTRR GET INSTANCE! - DEFAULT";
   static base::NoDestructor<AudioDeviceFactory> g_default_factory(
       /*override_default=*/false);
   return g_default_factory.get();
 }
 
 AudioDeviceFactory::AudioDeviceFactory(bool override_default) {
+  LOG(INFO) << "YO THOR - AUDIO DEVICE FCTORY CTOR! OVERRIDE?" << (override_default ? " true " : " false");
   if (override_default) {
     DCHECK(!g_factory_override) << "Can't register two factories at once.";
     g_factory_override = this;
