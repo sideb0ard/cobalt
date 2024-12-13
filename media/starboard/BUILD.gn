@@ -117,7 +117,6 @@ source_set("starboard") {
     "//media/renderers",
     "//starboard($starboard_toolchain)",
     "//starboard/common",
-    "//third_party/blink/public:blink_headers",
     "//url",
   ]
 
@@ -125,11 +124,12 @@ source_set("starboard") {
     deps += [ "//third_party/abseil-cpp:absl" ]
   }
 
+  if (use_starboard_media) {
+    deps += [ "//third_party/blink/public:blink_headers" ]
+  }
+
   # TODO(b/380940036): remove the circular dependency.
-  allow_circular_includes_from = [
-    "//media/base",
-    "//third_party/blink/public:blink_headers",
-  ]
+  allow_circular_includes_from = [ "//media/base" ]
 
   configs += [ "//media:subcomponent_config" ]
 }

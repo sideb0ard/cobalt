@@ -312,8 +312,6 @@ int RealtimeAudioDestinationHandler::GetFramesPerBuffer() const {
 void RealtimeAudioDestinationHandler::CreatePlatformDestination() {
   DCHECK(IsMainThread());
 
-  LOG(INFO) << "YO THOR! CREATE PLATFORM DESTINATION!";
-
   if (base::FeatureList::IsEnabled(features::kWebAudioSinkSelection)) {
     platform_destination_ = AudioDestination::Create(
         *this, sink_descriptor_, ChannelCount(), latency_hint_, sample_rate_,
