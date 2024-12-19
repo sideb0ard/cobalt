@@ -92,10 +92,6 @@ source_set("starboard") {
       "sbplayer_interface.h",
       "sbplayer_set_bounds_helper.cc",
       "sbplayer_set_bounds_helper.h",
-      "starboard_audio_device_factory.cc",
-      "starboard_audio_device_factory.h",
-      "starboard_audio_renderer_sink.cc",
-      "starboard_audio_renderer_sink.h",
       "starboard_cdm.cc",
       "starboard_cdm.h",
       "starboard_cdm_factory.cc",
@@ -124,14 +120,23 @@ source_set("starboard") {
     deps += [ "//third_party/abseil-cpp:absl" ]
   }
 
-  if (use_starboard_media) {
-    deps += [ "//third_party/blink/public:blink_headers" ]
-  }
-
   # TODO(b/380940036): remove the circular dependency.
   allow_circular_includes_from = [ "//media/base" ]
 
   configs += [ "//media:subcomponent_config" ]
+}
+
+source_set("webaudio") {
+  sources = [
+    "starboard_audio_device_factory.cc",
+    "starboard_audio_device_factory.h",
+    "starboard_audio_renderer_sink.cc",
+    "starboard_audio_renderer_sink.h",
+  ]
+  deps = [
+    "//starboard:starboard_headers_only",
+    "//third_party/blink/public:blink_headers",
+  ]
 }
 
 source_set("unit_tests") {

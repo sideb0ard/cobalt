@@ -17,6 +17,7 @@
 
 #include "starboard/audio_sink.h"
 
+#include "media/base/audio_renderer_sink.h"
 #include "media/base/media_export.h"
 
 namespace media {
