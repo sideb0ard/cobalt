@@ -392,6 +392,7 @@ target(gtest_target_type, "starboard_platform_tests") {
 
   deps = [
     ":starboard_platform",
+    "//base",
     "//starboard:starboard_group",
     "//starboard/shared/starboard/player/filter/testing:test_util",
     "//testing/gmock",

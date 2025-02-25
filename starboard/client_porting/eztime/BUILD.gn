@@ -36,7 +36,9 @@ source_set("eztime_test") {
 
   deps = [
     ":eztime",
+    "//base",
     "//starboard:starboard_group",
+    "//starboard/android/shared:starboard_platform",
     "//starboard/common",
     "//testing/gmock",
     "//testing/gtest",

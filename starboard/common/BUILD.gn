@@ -112,7 +112,9 @@ source_set("common_test") {
   ]
   deps = [
     ":common",
+    "//base",
     "//starboard:starboard_group",
+    "//starboard/android/shared:starboard_platform",
     "//testing/gmock",
     "//testing/gtest",
   ]

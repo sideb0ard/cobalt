@@ -259,7 +259,9 @@ test("nplb") {
   }
 
   deps = [
+    "//base",
     "//starboard:starboard_group",
+    "//starboard/android/shared:starboard_platform",
     "//starboard/common",
     "//starboard/common:file_wrapper",
     "//starboard/nplb/compiler_compliance:cpp14_supported",

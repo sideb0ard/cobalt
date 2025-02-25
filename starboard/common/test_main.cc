@@ -12,34 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "starboard/configuration.h"
+#include "base/android/jni_android.h"
+#include "base/logging.h"
 
-#include "build/build_config.h"
-#include "starboard/client_porting/wrap_main/wrap_main.h"
-#include "starboard/event.h"
-#include "starboard/system.h"
+#include "starboard/android/shared/jni_env_ext.h"
+#include "starboard/android/shared/jni_state.h"
+#include "starboard/android/shared/starboard_bridge.h"
+
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+
+using starboard::android::shared::JniEnvExt;
+using starboard::android::shared::JNIState;
+using starboard::android::shared::StarboardBridge;
+
 int InitAndRunAllTests(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
+
+  // JNIEnv* env = base::android::AttachCurrentThread();
+  // jclass starboard_bridge = env->FindClass("org/chromium/MyClass");
+  // ASSERT_NE(javaClass, nullptr) << "Failed to find Java class.";
+
+  JNIEnv* env = base::android::AttachCurrentThread();
+
+  auto bridge_class =
+      base::android::GetClass(env, "dev.cobalt.coat.StarboardBridge");
+  DCHECK(bridge_class);
+
+  jmethodID ctor = env->GetMethodID(bridge_class.obj(), "<init>", "()V");
+  DCHECK(ctor);
+
+  env->NewObject(bridge_class.obj(), ctor);
+
+  LOG(INFO) << "COBALT: Starboard initialized";
+
+  // JNIState::SetVM(base::android::GetVM());
+
+  ////JNIEnv* env = base::android::AttachCurrentThread();
+  // JniEnvExt* env_ext = JniEnvExt::Get();
+  // jobject starboard_bridge = nullptr;
+  // JniEnvExt::Initialize(env_ext, starboard_bridge);
+  // StarboardBridge::GetInstance()->Initialize(jni_env, starboard_bridge);
+  // StarboardBridge* starboard_bridge = StarboardBridge::GetInstance();
+
   return RUN_ALL_TESTS();
 }
 }  // namespace
 
-#if BUILDFLAG(IS_STARBOARD)
-// For the Starboard OS define SbEventHandle as the entry point
-SB_EXPORT STARBOARD_WRAP_SIMPLE_MAIN(InitAndRunAllTests);
-
-#if !SB_IS(EVERGREEN)
-// Define main() for non-Evergreen Starboard OS.
-int main(int argc, char** argv) {
-  return SbRunStarboardMain(argc, argv, SbEventHandle);
-}
-#endif  // !SB_IS(EVERGREEN)
-#else
-// If the OS is not Starboard use the regular main e.g. ATV.
 int main(int argc, char** argv) {
   return InitAndRunAllTests(argc, argv);
 }
-#endif  // BUILDFLAG(IS_STARBOARD)
