@@ -17,7 +17,10 @@
 
 #include "starboard/android/shared/jni_env_ext.h"
 #include "starboard/android/shared/jni_state.h"
+#include "starboard/android/shared/jni_utils.h"
 #include "starboard/android/shared/starboard_bridge.h"
+
+#include "starboard/shared/starboard/audio_sink/audio_sink_internal.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -30,31 +33,57 @@ using starboard::android::shared::StarboardBridge;
 int InitAndRunAllTests(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
 
-  // JNIEnv* env = base::android::AttachCurrentThread();
-  // jclass starboard_bridge = env->FindClass("org/chromium/MyClass");
-  // ASSERT_NE(javaClass, nullptr) << "Failed to find Java class.";
+  // Pass VM handle to Starboard JNI env
+  JNIState::SetVM(base::android::GetVM());
 
+  // Create and initialize StarboardBridge Java side
   JNIEnv* env = base::android::AttachCurrentThread();
 
-  auto bridge_class =
-      base::android::GetClass(env, "dev.cobalt.coat.StarboardBridge");
-  DCHECK(bridge_class);
+  jclass bridge_class = env->FindClass("dev/cobalt/coat/StarboardBridge");
+  if (bridge_class == nullptr) {
+    LOG(INFO) << "YO THOR, JAVA CLAS NOT DFOUND";
+  }
 
-  jmethodID ctor = env->GetMethodID(bridge_class.obj(), "<init>", "()V");
-  DCHECK(ctor);
+  jmethodID constructor = env->GetMethodID(bridge_class, "<init>", "()V");
+  if (constructor == nullptr) {
+    LOG(INFO) << "YO THOR, CTOR NOT DFOUND";
+  } else {
+    LOG(INFO) << "YO THOR, WE GOT A CTOR ";
+  }
 
-  env->NewObject(bridge_class.obj(), ctor);
+  // auto bridge_class =
+  //     base::android::GetClass(env, "dev.cobalt.coat.StarboardBridge");
+  // DCHECK(bridge_class);
 
-  LOG(INFO) << "COBALT: Starboard initialized";
+  // jmethodID ctor = env->GetMethodID(bridge_class.obj(), "<init>", "()V");
+  // DCHECK(ctor);
 
-  // JNIState::SetVM(base::android::GetVM());
+  // jobject starboard_bridge = env->NewObject(bridge_class.obj(), ctor);
 
-  ////JNIEnv* env = base::android::AttachCurrentThread();
-  // JniEnvExt* env_ext = JniEnvExt::Get();
-  // jobject starboard_bridge = nullptr;
-  // JniEnvExt::Initialize(env_ext, starboard_bridge);
+  // LOG(INFO) << "COBALT: Starboard initialized";
+
+  // jclass cls = env->GetObjectClass(starboard_bridge);
+  // jmethodID methodId = env->GetMethodID(cls, "getAudioOutputManager",
+  // "()Ldev/cobalt/media/AudioOutputManager;"); if (methodId == nullptr) {
+  //   LOG(INFO)  << "Method 'getAudioOutputManager' not found";
+  // } else {
+  //   LOG(INFO)  << "YO! i GOT Method 'getAudioOutputManager'";
+  //   // jobject local_am = jni_env->CallStarboardObjectMethodOrAbort(
+  //   //           "getAudioOutputManager",
+  //   //           "()Ldev/cobalt/media/AudioOutputManager;");
+  // }
+  // Initialize native C++
+
+  // JniEnvExt::Initialize(jni_env, starboard_bridge);
+
   // StarboardBridge::GetInstance()->Initialize(jni_env, starboard_bridge);
-  // StarboardBridge* starboard_bridge = StarboardBridge::GetInstance();
+
+  // jobject local_ref = jni_env->CallStarboardObjectMethodOrAbort(
+  //     "getResourceOverlay", "()Ldev/cobalt/coat/ResourceOverlay;");
+
+  // JniEnvExt* jni_env = JniEnvExt::Get();
+  // // Initialize Audio Sink
+  // ::starboard::shared::starboard::audio_sink::SbAudioSinkImpl::Initialize();
 
   return RUN_ALL_TESTS();
 }

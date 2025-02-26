@@ -18,6 +18,8 @@
 #include <unistd.h>
 #include <atomic>
 
+#include "base/logging.h"
+
 #include "starboard/android/shared/application_android.h"
 #include "starboard/android/shared/jni_env_ext.h"
 #include "starboard/android/shared/jni_utils.h"
@@ -235,6 +237,7 @@ Java_dev_cobalt_coat_StarboardBridge_nativeIsReleaseBuild() {
 extern "C" SB_EXPORT_PLATFORM void Java_dev_cobalt_coat_StarboardBridge_initJNI(
     JniEnvExt* env,
     jobject starboard_bridge) {
+  LOG(INFO) << "YO  THOR SBRIDGE INIT JNI IN MAIN CLLALLALLALALED!";
   JniEnvExt::Initialize(env, starboard_bridge);
 
   // Initialize the singleton instance of StarboardBridge

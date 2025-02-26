@@ -260,6 +260,7 @@ test("nplb") {
 
   deps = [
     "//base",
+    "//cobalt/android:cobalt_main_java",
     "//starboard:starboard_group",
     "//starboard/android/shared:starboard_platform",
     "//starboard/common",
@@ -286,6 +287,7 @@ test("nplb") {
   }
 
   data_deps = [
+    "//cobalt/android:libcobalt_content_shell_content_view",
     "//starboard/content/ssl:copy_ssl_certificates",
     "//starboard/nplb/testdata/file_tests:nplb_file_tests_data",
     "//starboard/shared/starboard/player:player_download_test_data",

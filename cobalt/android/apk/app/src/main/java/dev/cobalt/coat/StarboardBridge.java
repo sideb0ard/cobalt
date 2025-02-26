@@ -111,7 +111,13 @@ public class StarboardBridge {
 
     // Make sure the JNI stack is properly initialized first as there is a
     // race condition as soon as any of the following objects creates a new thread.
-    initJNI();
+
+    try {
+      Log.e(TAG, "TRYING initJNI!");
+      initJNI();
+    } catch (UnsatisfiedLinkError e) {
+      Log.e(TAG, "wOOH CANNAE FIND initJNI!");
+    }
 
     this.appContext = appContext;
     this.activityHolder = activityHolder;

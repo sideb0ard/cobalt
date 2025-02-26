@@ -44,6 +44,8 @@ namespace shared {
 
 // static
 void JniEnvExt::Initialize(JniEnvExt* env, jobject starboard_bridge) {
+  SB_LOG(INFO) << "YO THOR _ JNI ENV EXT INIIITIALIZE!";
+
   SB_DCHECK(g_tls_key == 0);
   pthread_key_create(&g_tls_key, Destroy);
 
