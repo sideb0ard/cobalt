@@ -26,7 +26,9 @@
 
 namespace content {
 
-WebContentsDelegate::WebContentsDelegate() = default;
+WebContentsDelegate::WebContentsDelegate() {
+  LOG(INFO) << "YO THOR _ WEB CONTENTS DELEGATE CTOR!";
+}
 
 WebContents* WebContentsDelegate::OpenURLFromTab(WebContents* source,
                                                  const OpenURLParams& params) {
@@ -232,6 +234,7 @@ void WebContentsDelegate::RequestMediaAccessPermission(
     WebContents* web_contents,
     const MediaStreamRequest& request,
     MediaResponseCallback callback) {
+  LOG(INFO) << "YO THOR - REQEQQQ MEDIA ACCESS PERMISSION!";
   LOG(ERROR) << "WebContentsDelegate::RequestMediaAccessPermission: "
              << "Not supported.";
   std::move(callback).Run(blink::mojom::StreamDevicesSet(),
@@ -243,6 +246,8 @@ bool WebContentsDelegate::CheckMediaAccessPermission(
     RenderFrameHost* render_frame_host,
     const GURL& security_origin,
     blink::mojom::MediaStreamType type) {
+  LOG(INFO) << "YO THOR - GRANT MEDIA ACCESS PERMISSION!";
+  return true;
   LOG(ERROR) << "WebContentsDelegate::CheckMediaAccessPermission: "
              << "Not supported.";
   return false;

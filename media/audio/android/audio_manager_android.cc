@@ -67,6 +67,7 @@ bool IsAudioSinkConnected() {
 static bool InitAAudio() {
   StubPathMap paths;
 
+  LOG(INFO) << "YO THOR INIT AAUDIO - WE CALLED?";
   // Check if the AAudio library is available.
   paths[kModuleAaudio].push_back(kAaudioLib);
   if (!InitializeStubs(paths)) {
@@ -79,6 +80,7 @@ static bool InitAAudio() {
 std::unique_ptr<AudioManager> CreateAudioManager(
     std::unique_ptr<AudioThread> audio_thread,
     AudioLogFactory* audio_log_factory) {
+  LOG(INFO) << "YO THOR - CREATE ANDROID AUDIO MANAGEEEE";
   return std::make_unique<AudioManagerAndroid>(std::move(audio_thread),
                                                audio_log_factory);
 }
@@ -90,6 +92,7 @@ AudioManagerAndroid::AudioManagerAndroid(
       communication_mode_is_on_(false),
       output_volume_override_set_(false),
       output_volume_override_(0) {
+  LOG(INFO) << "YO THOR - AUDIO MANAGEEEE ANDROID CTOR";
   SetMaxOutputStreamsAllowed(kMaxOutputStreams);
 }
 
@@ -126,7 +129,8 @@ bool AudioManagerAndroid::HasAudioInputDevices() {
 void AudioManagerAndroid::GetAudioInputDeviceNames(
     AudioDeviceNames* device_names) {
   DCHECK(GetTaskRunner()->BelongsToCurrentThread());
-
+ 
+  LOG(INFO) << "YO THOR GET AUDIO INPUT DEVICE NAMES!";
   // Always add default device parameters as first element.
   DCHECK(device_names->empty());
   AddDefaultDevice(device_names);
@@ -155,6 +159,8 @@ void AudioManagerAndroid::GetAudioInputDeviceNames(
   for (auto d : *device_names) {
     DVLOG(1) << "device_name: " << d.device_name;
     DVLOG(1) << "unique_id: " << d.unique_id;
+    LOG(INFO) << "YO THOR _ device_name: " << d.device_name;
+    LOG(INFO) << "YO THOR unique_id: " << d.unique_id;
   }
 }
 
@@ -432,6 +438,7 @@ void AudioManagerAndroid::SetCommunicationAudioModeOn(bool on) {
 }
 
 bool AudioManagerAndroid::SetAudioDevice(const std::string& device_id) {
+  LOG(INFO) << "YO THOR - SET AUDIO DEVICE TO:" << device_id;
   DVLOG(1) << __FUNCTION__ << ": " << device_id;
   DCHECK(GetTaskRunner()->BelongsToCurrentThread());
 

@@ -265,10 +265,13 @@ void BrowserContextImpl::SetDownloadManagerForTesting(
 }
 
 PermissionController* BrowserContextImpl::GetPermissionController() {
+  LOG(INFO) << "YO THOR _ GET PERMS CONTROLLER 4 BROWSER CONTEXT!";
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
 
-  if (!permission_controller_)
+  if (!permission_controller_) {
     permission_controller_ = std::make_unique<PermissionControllerImpl>(self_);
+    //permission_controller_ = std::make_unique<CobaltPermissionController>(self_);
+  }
 
   return permission_controller_.get();
 }

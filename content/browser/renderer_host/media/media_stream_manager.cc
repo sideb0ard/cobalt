@@ -1602,7 +1602,7 @@ MediaStreamManager::MediaStreamManager(
       conditional_focus_window_(GetConditionalFocusWindow()),
 #endif
       audio_system_(audio_system) {
-  bool use_fake_ui_factory = false;
+  bool use_fake_ui_factory = true;
 
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kUseFakeUIForMediaStream)) {
@@ -2581,6 +2581,7 @@ void MediaStreamManager::PostRequestToUI(
     const std::string& label,
     const MediaDeviceEnumeration& enumeration,
     const absl::optional<media::AudioParameters>& output_parameters) {
+  LOG(INFO) << "YO THOR! MEDIA STREAM MANAGER POST REQ! - " << label;
   DCHECK_CURRENTLY_ON(BrowserThread::IO);
   DCHECK(!output_parameters || output_parameters->IsValid());
   DeviceRequest* request = FindRequest(label);
@@ -2603,8 +2604,10 @@ void MediaStreamManager::PostRequestToUI(
   }
 
   if (ShouldUseFakeUIProxy(*request)) {
+    LOG(INFO) << "YO THOR _ USE FAKE UI PROXY!";
     request->ui_proxy = MakeFakeUIProxy(label, enumeration, request);
   } else if (!request->ui_proxy) {
+    LOG(INFO) << "YO THOR _ NOT UI PROXYPROXY!";
     request->ui_proxy = MediaStreamUIProxy::Create();
   }
 
@@ -4481,10 +4484,12 @@ void MediaStreamManager::MaybeUpdateTrackedCaptureHandleConfigs(
 bool MediaStreamManager::ShouldUseFakeUIProxy(
     const DeviceRequest& request) const {
   if (!fake_ui_factory_) {
+    LOG(INFO) << "YO THOR - NAE FAKE UI FACTORY?! FALSE";
     return false;
   }
 
   if (use_fake_ui_only_for_camera_and_microphone_) {
+    LOG(INFO) << "YO THOR - USE FAKE UI ONLY FOR CAMER AND MIC";
     return request.audio_type() == MediaStreamType::DEVICE_AUDIO_CAPTURE ||
            request.video_type() == MediaStreamType::DEVICE_VIDEO_CAPTURE;
   }

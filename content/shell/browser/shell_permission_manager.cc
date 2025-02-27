@@ -22,6 +22,7 @@ namespace content {
 namespace {
 
 bool IsAllowlistedPermissionType(PermissionType permission) {
+  return true;
   switch (permission) {
     case PermissionType::GEOLOCATION:
     case PermissionType::MIDI:
@@ -38,6 +39,9 @@ bool IsAllowlistedPermissionType(PermissionType permission) {
 
     case PermissionType::IDLE_DETECTION:
 
+    case PermissionType::AUDIO_CAPTURE:
+    case PermissionType::VIDEO_CAPTURE:
+
     // Storage Access API web platform tests require permission to be granted by
     // default.
     case PermissionType::STORAGE_ACCESS_GRANT:
@@ -51,8 +55,6 @@ bool IsAllowlistedPermissionType(PermissionType permission) {
     case PermissionType::NOTIFICATIONS:
     case PermissionType::PROTECTED_MEDIA_IDENTIFIER:
     case PermissionType::DURABLE_STORAGE:
-    case PermissionType::AUDIO_CAPTURE:
-    case PermissionType::VIDEO_CAPTURE:
     case PermissionType::CLIPBOARD_READ_WRITE:
     case PermissionType::CLIPBOARD_SANITIZED_WRITE:
     case PermissionType::NUM:
@@ -83,7 +85,9 @@ void ShellPermissionManager::RequestPermission(
     const GURL& requesting_origin,
     bool user_gesture,
     base::OnceCallback<void(blink::mojom::PermissionStatus)> callback) {
+    LOG(INFO) << "YO THOR - REQ PERM";
   if (render_frame_host->IsNestedWithinFencedFrame()) {
+    LOG(INFO) << "YO THOR - WE NESTED?";
     std::move(callback).Run(blink::mojom::PermissionStatus::DENIED);
     return;
   }
@@ -99,6 +103,7 @@ void ShellPermissionManager::RequestPermissions(
     bool user_gesture,
     base::OnceCallback<void(const std::vector<blink::mojom::PermissionStatus>&)>
         callback) {
+    LOG(INFO) << "YO THOR - REQ PERM2";
   if (render_frame_host->IsNestedWithinFencedFrame()) {
     std::move(callback).Run(std::vector<blink::mojom::PermissionStatus>(
         permissions.size(), blink::mojom::PermissionStatus::DENIED));
@@ -125,6 +130,7 @@ void ShellPermissionManager::RequestPermissionsFromCurrentDocument(
     bool user_gesture,
     base::OnceCallback<void(const std::vector<blink::mojom::PermissionStatus>&)>
         callback) {
+    LOG(INFO) << "YO THOR - REQ PERM3";
   if (render_frame_host->IsNestedWithinFencedFrame()) {
     std::move(callback).Run(std::vector<blink::mojom::PermissionStatus>(
         permissions.size(), blink::mojom::PermissionStatus::DENIED));
@@ -143,6 +149,7 @@ blink::mojom::PermissionStatus ShellPermissionManager::GetPermissionStatus(
     PermissionType permission,
     const GURL& requesting_origin,
     const GURL& embedding_origin) {
+    LOG(INFO) << "YO THOR - PERM3status ";
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if ((permission == PermissionType::AUDIO_CAPTURE ||
        permission == PermissionType::VIDEO_CAPTURE) &&
@@ -160,6 +167,7 @@ PermissionResult
 ShellPermissionManager::GetPermissionResultForOriginWithoutContext(
     blink::PermissionType permission,
     const url::Origin& origin) {
+    LOG(INFO) << "YO THOR - PERM4status ";
   blink::mojom::PermissionStatus status =
       GetPermissionStatus(permission, origin.GetURL(), origin.GetURL());
 
@@ -185,6 +193,7 @@ ShellPermissionManager::GetPermissionStatusForWorker(
     PermissionType permission,
     content::RenderProcessHost* render_process_host,
     const GURL& worker_origin) {
+    LOG(INFO) << "YO THOR - PERM4WORKA ";
   return GetPermissionStatus(permission, worker_origin, worker_origin);
 }
 
@@ -193,6 +202,7 @@ ShellPermissionManager::GetPermissionStatusForEmbeddedRequester(
     blink::PermissionType permission,
     content::RenderFrameHost* render_frame_host,
     const url::Origin& overridden_origin) {
+    LOG(INFO) << "YO THOR - PERM4EMBEDDED ";
   if (render_frame_host->IsNestedWithinFencedFrame()) {
     return blink::mojom::PermissionStatus::DENIED;
   }

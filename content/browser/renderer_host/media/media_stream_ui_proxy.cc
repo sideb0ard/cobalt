@@ -152,6 +152,7 @@ void MediaStreamUIProxy::Core::RequestAccess(
     return;
   }
 
+  LOG(INFO) << "YO THOR - MEDIA STREAM UI PROXY - call RENDER DELEGATE - REQ MEDIA ACCC PERM";
   render_delegate->RequestMediaAccessPermission(
       *request,
       base::BindOnce(&Core::ProcessAccessRequestResponse, weak_this_,

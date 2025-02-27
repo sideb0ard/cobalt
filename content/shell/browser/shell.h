@@ -124,6 +124,9 @@ class Shell : public WebContentsDelegate, public WebContentsObserver {
                       bool* was_blocked) override;
   void LoadingStateChanged(WebContents* source,
                            bool should_show_loading_ui) override;
+  bool CheckMediaAccessPermission(RenderFrameHost* render_frame_host,
+                                  const GURL& security_origin,
+                                  blink::mojom::MediaStreamType type) override;
 #if BUILDFLAG(IS_ANDROID)
   void SetOverlayMode(bool use_overlay_mode) override;
 #endif

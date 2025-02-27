@@ -293,6 +293,7 @@ UserMediaClient::UserMediaClient(
                                                    this,
                                                    task_runner)
               : nullptr) {
+        LOG(INFO) << "YO THOR - USER MEDIA CLIENT CTOR!";
   DCHECK(frame_);
   // WrapWeakPersistent is safe because the |frame_| owns UserMediaClient.
   frame_->SetIsCapturingMediaCallback(WTF::BindRepeating(
@@ -334,6 +335,7 @@ UserMediaClient::UserMediaClient(
           std::move(task_runner)) {}
 
 void UserMediaClient::RequestUserMedia(UserMediaRequest* user_media_request) {
+  LOG(INFO) << "YO THOR - USER MEDIA CLIENT _ REQUEST USER MEDIA";
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   DCHECK(user_media_request);
   DCHECK(user_media_request->Audio() || user_media_request->Video());
@@ -387,6 +389,7 @@ void UserMediaClient::RequestUserMedia(UserMediaRequest* user_media_request) {
   auto* queue = GetRequestQueue(type);
   queue->EnqueueAndMaybeProcess(
       MakeGarbageCollected<Request>(user_media_request));
+  LOG(INFO)<< "YO THOR - ENQUEUE AND PROC REQ";
 }
 
 void UserMediaClient::ApplyConstraints(

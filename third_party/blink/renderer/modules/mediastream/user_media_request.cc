@@ -747,8 +747,10 @@ LocalDOMWindow* UserMediaRequest::GetWindow() {
 }
 
 void UserMediaRequest::Start() {
-  if (client_)
+  LOG(INFO) << "YO THOR - USER MEDUAREQ - START()";
+  if (client_) {
     client_->RequestUserMedia(this);
+  }
 }
 
 void UserMediaRequest::Succeed(

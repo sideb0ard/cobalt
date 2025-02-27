@@ -262,15 +262,15 @@ public class CobaltMediaSession implements ArtworkLoader.Callback {
     PlaybackStateCompat playbackState = playbackStateBuilder.build();
     mMediaSession.setPlaybackState(playbackState);
 
-    Log.i(
-        TAG,
-        "MediaSession setPlaybackState: %d, actions: %d, position: %d ms, speed: %f x, last"
-            + " updated: %d.",
-        playbackState.getState(),
-        playbackState.getActions(),
-        playbackState.getPosition(),
-        playbackState.getPlaybackSpeed(),
-        playbackState.getLastPositionUpdateTime());
+    // Log.i(
+    //     TAG,
+    //     "MediaSession setPlaybackState: %d, actions: %d, position: %d ms, speed: %f x, last"
+    //         + " updated: %d.",
+    //     playbackState.getState(),
+    //     playbackState.getActions(),
+    //     playbackState.getPosition(),
+    //     playbackState.getPlaybackSpeed(),
+    //     playbackState.getLastPositionUpdateTime());
   }
 
   private void resetMetaData() {
@@ -299,13 +299,13 @@ public class CobaltMediaSession implements ArtworkLoader.Callback {
     MediaMetadataCompat metadata = metadataBuilder.build();
     mMediaSession.setMetadata(metadata);
 
-    Log.i(
-        TAG,
-        "MediaSession setMetadata title: %s, artist %s, album %s, duration %d.",
-        metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE),
-        metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST),
-        metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM),
-        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
+    // Log.i(
+    //     TAG,
+    //     "MediaSession setMetadata title: %s, artist %s, album %s, duration %d.",
+    //     metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE),
+    //     metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST),
+    //     metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM),
+    //     metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
   }
 
   private long computeMediaSessionActions() {

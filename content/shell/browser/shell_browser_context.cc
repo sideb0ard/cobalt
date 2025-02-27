@@ -172,6 +172,7 @@ SSLHostStateDelegate* ShellBrowserContext::GetSSLHostStateDelegate() {
 
 PermissionControllerDelegate*
 ShellBrowserContext::GetPermissionControllerDelegate() {
+  LOG(INFO) << "YO THOR - SHELL BROWSER CONTEXT GET PERM DELAGET";
   if (!permission_manager_.get())
     permission_manager_ = std::make_unique<ShellPermissionManager>();
   return permission_manager_.get();

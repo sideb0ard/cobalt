@@ -793,7 +793,7 @@ class CONTENT_EXPORT MediaStreamManager
   // If `true`, the fake UI factory is used only for cameras and microphones,
   // and NOT for any form of screen-capture, regardless if that screen-capture
   // is getDisplayMedia-driven or getUserMedia-driven.
-  bool use_fake_ui_only_for_camera_and_microphone_ = false;
+  bool use_fake_ui_only_for_camera_and_microphone_ = true;
 
   // Observes changes of captured tabs' CaptureHandleConfig and reports
   // this changes back to their capturers. This object lives on the UI thread

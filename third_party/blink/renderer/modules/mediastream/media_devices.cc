@@ -409,6 +409,7 @@ ScriptPromise MediaDevices::getUserMedia(
     ScriptState* script_state,
     const UserMediaStreamConstraints* options,
     ExceptionState& exception_state) {
+  LOG(INFO) << "YO THOR! MEDIA DEVICES GET USER MEDIA!";
   // This timeout of base::Seconds(8) is an initial value and based on the data
   // in Media.MediaDevices.GetUserMedia.Latency, it should be iterated upon.
   auto* resolver = MakeGarbageCollected<
@@ -437,9 +438,11 @@ ScriptPromise MediaDevices::SendUserMediaRequest(
     const MediaStreamConstraints* options,
     ExceptionState& exception_state) {
   DCHECK(!exception_state.HadException());
+  LOG(INFO) << "YO THOR SEND USER MEDIA REQUEST!";
 
   ScriptState* script_state = resolver->GetScriptState();
   if (!script_state->ContextIsValid()) {
+    LOG(INFO) << "YO THOR SCRIPT STATE CONTEXT ISNT VALID";
     resolver->RecordAndThrowDOMException(
         exception_state, DOMExceptionCode::kNotSupportedError,
         "No media device client available; "
@@ -477,6 +480,7 @@ ScriptPromise MediaDevices::SendUserMediaRequest(
       media_type, resolver, std::move(on_success_follow_up));
 
   LocalDOMWindow* window = LocalDOMWindow::From(script_state);
+  LOG(INFO) << "YO THOR - CRETAE USER MEDIA CLIENT";
   UserMediaClient* user_media_client = UserMediaClient::From(window);
   constexpr IdentifiableSurface::Type surface_type =
       IdentifiableSurface::Type::kMediaDevices_GetUserMedia;
@@ -490,6 +494,7 @@ ScriptPromise MediaDevices::SendUserMediaRequest(
       UserMediaRequest::Create(window, user_media_client, media_type, options,
                                callbacks, exception_state, surface);
   if (!request) {
+    LOG(INFO) << "YO THOR _ WOOF< COUNDNT CRAEAT REQUEST WITH CLIENT";
     DCHECK(exception_state.HadException());
     resolver->RecordResultAndLatency(
         UserMediaRequestResult::kInvalidConstraints);
@@ -513,6 +518,7 @@ ScriptPromise MediaDevices::SendUserMediaRequest(
   }
 #endif
 
+  LOG(INFO) << "YO THOR _ WE GOOD< START REQUEST!";
   request->Start();
   return promise;
 }

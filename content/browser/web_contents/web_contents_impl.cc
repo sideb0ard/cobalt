@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "base/debug/stack_trace.h"
+
 #include "base/allocator/partition_allocator/partition_alloc_buildflags.h"
 #include "base/check_op.h"
 #include "base/command_line.h"
@@ -1368,6 +1370,7 @@ WebContentsDelegate* WebContentsImpl::GetDelegate() {
 void WebContentsImpl::SetDelegate(WebContentsDelegate* delegate) {
   OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::SetDelegate", "delegate",
                         static_cast<void*>(delegate));
+  LOG(INFO) << "YO THOR - WEB CONTENTS IMPL - SET DELEGATE!";
   // TODO(cbentzel): remove this debugging code?
   if (delegate == delegate_)
     return;
@@ -4501,14 +4504,18 @@ void WebContentsImpl::CreateMediaPlayerHostForRenderFrameHost(
 void WebContentsImpl::RequestMediaAccessPermission(
     const MediaStreamRequest& request,
     MediaResponseCallback callback) {
+  LOG(INFO) << "YO THOR  WebContentsImpl::RequestMediaAccessPermission";
+
   OPTIONAL_TRACE_EVENT2("content",
                         "WebContentsImpl::RequestMediaAccessPermission",
                         "render_process_id", request.render_process_id,
                         "render_frame_id", request.render_frame_id);
 
   if (delegate_) {
+    LOG(INFO) << "YO THOR _ HAZ DELEGATE";
     delegate_->RequestMediaAccessPermission(this, request, std::move(callback));
   } else {
+    LOG(INFO) << "YO THOR _ NAE DELEGATE";
     std::move(callback).Run(
         blink::mojom::StreamDevicesSet(),
         blink::mojom::MediaStreamRequestResult::FAILED_DUE_TO_SHUTDOWN,

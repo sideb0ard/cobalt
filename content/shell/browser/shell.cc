@@ -72,8 +72,10 @@ Shell::Shell(std::unique_ptr<WebContents> web_contents,
              bool should_set_delegate)
     : WebContentsObserver(web_contents.get()),
       web_contents_(std::move(web_contents)) {
-  if (should_set_delegate)
+  if (should_set_delegate) {
+    LOG(INFO) << "YO THOR - SHELLL SHELLL SET WEB CONTENTS DELEGATE THISS!";
     web_contents_->SetDelegate(this);
+  }
 
   if (!switches::IsRunWebTestsSwitchPresent()) {
     UpdateFontRendererPreferencesFromSystemSettings(
@@ -452,6 +454,13 @@ void Shell::LoadingStateChanged(WebContents* source,
                                 bool should_show_loading_ui) {
   UpdateNavigationControls(should_show_loading_ui);
   g_platform->SetIsLoading(this, source->IsLoading());
+}
+
+bool Shell::CheckMediaAccessPermission(RenderFrameHost* render_frame_host,
+                                const GURL& security_origin,
+                                blink::mojom::MediaStreamType type) {
+  LOG(INFO) << "YO THOR! CHECK MEDIA ACCESS PERMISSION - lETSA SAY YES!";
+  return true;
 }
 
 #if BUILDFLAG(IS_ANDROID)
