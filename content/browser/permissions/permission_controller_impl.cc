@@ -225,7 +225,7 @@ void PermissionStatusCallbackWrapper(
 PermissionControllerImpl::PermissionControllerImpl(
     BrowserContext* browser_context)
     : browser_context_(browser_context) {
-      LOG(INFO) << "YO THOR ! PERM CONTROLLER IMPL CTOR!";
+      LOG(INFO) << "YO THOR ! PERM CONTROLLER IMPL CTOR!!";
     }
 
 // TODO(https://crbug.com/1271543): Remove this method and use
