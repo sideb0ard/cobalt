@@ -39,6 +39,23 @@ int InitAndRunAllTests(int argc, char** argv) {
   // Create and initialize StarboardBridge Java side
   JNIEnv* env = base::android::AttachCurrentThread();
 
+  // Get Context
+  base::android::ScopedJavaLocalRef<jobject> context =
+      base::android::GetApplicationContext();
+  ASSERT_FALSE(context.is_null());
+
+  // Create Holder<Activity>
+  jclass holder_class =
+      env->FindClass("org/chromium/base/supplier/ObservableSupplierImpl");
+  ASSERT_NE(holder_class, nullptr);
+  jmethodID holder_constructor =
+      env->GetMethodID(holder_class, "<init>", "()V");
+  ASSERT_NE(holder_constructor, nullptr);
+  jobject holder_object = env->NewObject(holder_class, holder_constructor);
+  ASSERT_NE(holder_object, nullptr);
+  base::android::ScopedJavaLocalRef<jobject> scoped_holder_object(
+      env, holder_object);
+
   jclass bridge_class = env->FindClass("dev/cobalt/coat/StarboardBridge");
   if (bridge_class == nullptr) {
     LOG(INFO) << "YO THOR, JAVA CLAS NOT DFOUND";
