@@ -20,7 +20,9 @@ group("gn_all") {
   # TODO(b/371589344): Fix android build configs.
   deps = [
     "//starboard:starboard_group",
-    "//starboard/nplb",
+    "//starboard/nplb:nplb_platform",
+
+    # "//starboard/nplb:nplb_media",
   ]
   if (!is_android) {
     deps += [ ":cobalt" ]
