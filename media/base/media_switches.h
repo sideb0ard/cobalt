@@ -178,6 +178,8 @@ MEDIA_EXPORT extern const base::FeatureParam<int>
 #endif
 #if BUILDFLAG(USE_STARBOARD_MEDIA)
 MEDIA_EXPORT BASE_DECLARE_FEATURE(kCobaltProgressivePlayback);
+MEDIA_EXPORT BASE_DECLARE_FEATURE(kCobaltDecoderBufferAllocatorLogControl);
+MEDIA_EXPORT extern const base::FeatureParam<int> kCobaltDecoderBufferAllocatorLogLevel;
 #endif  // BUILDFLAG(USE_STARBOARD_MEDIA)
 #if BUILDFLAG(IS_CHROMEOS)
 MEDIA_EXPORT BASE_DECLARE_FEATURE(kCrOSSystemAEC);
@@ -462,6 +464,10 @@ MEDIA_EXPORT extern const base::FeatureParam<kCrosGlobalMediaControlsPinOptions>
 
 // Return bitmask of audio formats supported by EDID.
 MEDIA_EXPORT uint32_t GetPassthroughAudioFormats();
+
+#if BUILDFLAG(USE_STARBOARD_MEDIA)
+MEDIA_EXPORT int GetDecoderBufferAllocatorLogLevel();
+#endif // BUILDFLAG(USE_STARBOARD_MEDIA)
 
 }  // namespace media
 

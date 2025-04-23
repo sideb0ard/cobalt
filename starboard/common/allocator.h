@@ -38,14 +38,10 @@ class Allocator {
 
   virtual ~Allocator() {}
 
-  // TODO: b/369245553 - Cobalt: Consider controlling this via a command line
-  // parameter.
-  static constexpr int ExtraLogLevel() {
-    // 0 => keep allocator related logging to minimum.
-    // 1 => enable extra logging for statistics in this class and its users.
-    // 2 => enable per allocation logging (extremely chatty).
-    return 0;
-  }
+  // 0 => keep allocator related logging to minimum.
+  // 1 => enable extra logging for statistics in this class and its users.
+  // 2 => enable per allocation logging (extremely chatty).
+  static int GetLogLevel();
 
   // Allocates a range of memory of the given size, without any alignment
   // constraints.

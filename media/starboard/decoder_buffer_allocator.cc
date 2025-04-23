@@ -115,7 +115,7 @@ void* DecoderBufferAllocator::Allocate(DemuxerStream::Type type,
   CHECK(p);
 
 #if !defined(COBALT_BUILD_TYPE_GOLD)
-  if (starboard::common::Allocator::ExtraLogLevel() >= 2) {
+  if (starboard::common::Allocator::GetLogLevel() >= 2) {
     ++pending_allocation_operations_count_;
     pending_allocation_operations_ << " a " << p << " " << type << " " << size
                                    << " " << alignment;
@@ -140,7 +140,7 @@ void DecoderBufferAllocator::Free(void* p, size_t size) {
   strategy_->Free(DemuxerStream::UNKNOWN, p);
 
 #if !defined(COBALT_BUILD_TYPE_GOLD)
-  if (starboard::common::Allocator::ExtraLogLevel() >= 2) {
+  if (starboard::common::Allocator::GetLogLevel() >= 2) {
     ++pending_allocation_operations_count_;
     pending_allocation_operations_ << " f " << p;
     TryFlushAllocationLog_Locked();

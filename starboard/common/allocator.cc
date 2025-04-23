@@ -14,10 +14,30 @@
 
 #include "starboard/common/allocator.h"
 
+#include "media/base/media_switches.h"
+
 namespace starboard {
 namespace common {
 
 const size_t Allocator::kMinAlignment = 16;
+
+const int kDefaultDecoderBufferAllocatorLogLevel = 0;
+
+int Allocator::GetLogLevel() {
+  int log_level = kDefaultDecoderBufferAllocatorLogLevel;
+  if (media::kCobaltDecoderBufferAllocatorLogControl) {
+    int param_val = media::kDecoderBufferAllocatorLogLevelParam.Get();
+    if (param_val >= kDefaultDecoderBufferAllocatorLogLevel && param_val < 3) {
+      LOG(INFO) << "YO THOR - SETTING LOG LEVEL TO " << param_val;
+    } else {
+      LOG(WARNING) << "Invalid Log Level:" << param_val;
+    }
+  } else {
+    LOG(INFO) << "YO THOR - DEFAULT LOG LEVEL";
+  }
+
+  return log_level;
+}
 
 }  // namespace common
 }  // namespace starboard

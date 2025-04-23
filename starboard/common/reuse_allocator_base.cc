@@ -299,7 +299,7 @@ ReuseAllocatorBase::ReuseAllocatorBase(Allocator* fallback_allocator,
 }
 
 ReuseAllocatorBase::~ReuseAllocatorBase() {
-  if (ExtraLogLevel() >= 1) {
+  if (starboard::common::Allocator::GetLogLevel() >= 1) {
     SB_LOG(INFO) << "Destroying reuse allocator ...";
     PrintAllocations(true, 16);
   }
@@ -320,7 +320,7 @@ ReuseAllocatorBase::~ReuseAllocatorBase() {
 ReuseAllocatorBase::FreeBlockSet::iterator ReuseAllocatorBase::ExpandToFit(
     size_t size,
     size_t alignment) {
-  if (ExtraLogLevel() >= 1) {
+  if (starboard::common::Allocator::GetLogLevel() >= 1) {
     int capacity = GetCapacity();
     int allocated = GetAllocated();
     int64_t free_percentage =
@@ -359,7 +359,7 @@ ReuseAllocatorBase::FreeBlockSet::iterator ReuseAllocatorBase::ExpandToFit(
     auto free_block_iter = AddFreeBlock(MemoryBlock(
         static_cast<int>(fallback_allocations_.size() - 1), ptr, size_to_try));
 
-    if (ExtraLogLevel() >= 1) {
+    if (starboard::common::Allocator::GetLogLevel() >= 1) {
       int capacity = GetCapacity();
       int allocated = GetAllocated();
       int64_t free_percentage =
@@ -379,7 +379,8 @@ ReuseAllocatorBase::FreeBlockSet::iterator ReuseAllocatorBase::ExpandToFit(
   }
 
   if (free_blocks_.empty()) {
-    SB_LOG_IF(INFO, ExtraLogLevel() >= 1) << "Failed to expand.";
+    SB_LOG_IF(INFO, starboard::common::Allocator::GetLogLevel() >= 1)
+        << "Failed to expand.";
     return free_blocks_.end();
   }
 
@@ -416,7 +417,8 @@ ReuseAllocatorBase::FreeBlockSet::iterator ReuseAllocatorBase::ExpandToFit(
   // |free_address + free_size|  |aligned_address|
   size_t size_to_allocate = aligned_address + size - free_address - free_size;
   if (max_capacity_ && capacity_ + size_to_allocate > max_capacity_) {
-    SB_LOG_IF(INFO, ExtraLogLevel() >= 1) << "Failed to expand.";
+    SB_LOG_IF(INFO, starboard::common::Allocator::GetLogLevel() >= 1)
+        << "Failed to expand.";
     return free_blocks_.end();
   }
   SB_DCHECK(size_to_allocate > 0);
@@ -432,7 +434,7 @@ ReuseAllocatorBase::FreeBlockSet::iterator ReuseAllocatorBase::ExpandToFit(
   FreeBlockSet::iterator iter = free_blocks_.end();
   --iter;
 
-  if (ExtraLogLevel() >= 1) {
+  if (starboard::common::Allocator::GetLogLevel() >= 1) {
     int capacity = GetCapacity();
     int allocated = GetAllocated();
     int64_t free_percentage =
@@ -451,7 +453,7 @@ ReuseAllocatorBase::FreeBlockSet::iterator ReuseAllocatorBase::ExpandToFit(
   if (iter->CanFulfill(size, alignment)) {
     return iter;
   } else {
-    SB_LOG_IF(INFO, ExtraLogLevel() >= 1)
+    SB_LOG_IF(INFO, starboard::common::Allocator::GetLogLevel() >= 1)
         << "Failed to allocate after expanding.";
     return free_blocks_.end();
   }
