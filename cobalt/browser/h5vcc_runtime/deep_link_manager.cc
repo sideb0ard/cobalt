@@ -22,6 +22,7 @@ namespace browser {
 
 DeepLinkManager::DeepLinkManager() {
   DETACH_FROM_THREAD(thread_checker_);
+  LOG(INFO) << "YO THOR DEEP LINK MANAGER CTOR";
 }
 
 DeepLinkManager::~DeepLinkManager() {
@@ -30,21 +31,26 @@ DeepLinkManager::~DeepLinkManager() {
 
 // static
 DeepLinkManager* DeepLinkManager::GetInstance() {
+  LOG(INFO) << "YO THOR DEEP LINK MANAGER - GET INSTANCE";
   static base::NoDestructor<DeepLinkManager> provider;
   return provider.get();
 }
 
 void DeepLinkManager::set_deep_link(const std::string& url) {
+  LOG(INFO) << "YO THOR DEEP LINK MANAGER - SET DEEP LINK:" << url;
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   deep_link_ = url;
 }
 const std::string& DeepLinkManager::get_deep_link() const {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+  LOG(INFO) << "YO THOR DEEP LINK MANAGER - GET DEEP LINK:" << deep_link_;
   return deep_link_;
 }
 
 const std::string DeepLinkManager::GetAndClearDeepLink() {
   const std::string value = get_deep_link();
+  LOG(INFO) << "YO THOR DEEP LINK MANAGER - GET AND CLEAR DEEP LINK:"
+            << deep_link_ << " VIA FUNC:" << value;
   if (!value.empty()) {
     set_deep_link("");
   }
@@ -53,9 +59,11 @@ const std::string DeepLinkManager::GetAndClearDeepLink() {
 
 void DeepLinkManager::AddListener(
     mojo::Remote<DeepLinkListener> listener_remote) {
+  LOG(INFO) << "YO THOR DEEP LINK MANAGER - ADD LISTENER";
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
   if (listeners_.empty() && !deep_link_.empty()) {
+    LOG(INFO) << "YO THOR - NOTIfY LISTENER!";
     listener_remote->NotifyDeepLink(GetAndClearDeepLink());
   }
 
@@ -65,12 +73,15 @@ void DeepLinkManager::AddListener(
 }
 
 void DeepLinkManager::OnDeepLink(const std::string& url) {
+  LOG(INFO) << "YO THOR DEEP LINK MANAGER - ON DEEP LINK ";
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   if (listeners_.empty()) {
+    LOG(INFO) << "YO THOR DEEP LINK MANAGER - NAE LISTENERS";
     // Deeplink is held until a callback is registered, at which point it will
     // be consumed."
     set_deep_link(url);
   } else {
+    LOG(INFO) << "YO THOR DEEP LINK MANAGER - GOT LISTENERS";
     // No need to worry about race condition because all access to the
     // mojo::RemoteSet happens on one thread.
     for (auto& listener : listeners_) {

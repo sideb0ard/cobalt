@@ -62,6 +62,8 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
     content::BrowserContext* browser_context) {
   embedder_support::PermissionContextDelegates delegates;
 
+  LOG(INFO) << "YO THOR!! CREAT PERMISSION CONTEXTS";
+
   delegates.camera_pan_tilt_zoom_permission_context_delegate =
       std::make_unique<WebLayerCameraPanTiltZoomPermissionContextDelegate>();
   delegates.geolocation_permission_context_delegate =

@@ -58,6 +58,7 @@ void H5vccRuntimeImpl::GetAndClearInitialDeepLink(
 
 void H5vccRuntimeImpl::AddListener(
     mojo::PendingRemote<mojom::DeepLinkListener> listener) {
+  LOG(INFO) << "YO THOR - ADD LISTERNER!";
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   mojo::Remote<mojom::DeepLinkListener> listener_remote;
   listener_remote.Bind(std::move(listener));

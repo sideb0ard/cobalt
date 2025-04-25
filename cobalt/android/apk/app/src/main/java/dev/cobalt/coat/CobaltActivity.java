@@ -570,6 +570,13 @@ public abstract class CobaltActivity extends Activity {
 
   @Override
   protected void onNewIntent(Intent intent) {
+
+    String newURLstyle = getIntentUrlAsString(intent);
+    String oldURLstyle = getUrlFromIntent(intent);
+    Log.i(TAG, "YO THOR! ON NEW INTENT!");
+    Log.i(
+        TAG,
+        "YO THOR! ON NEW INTENT! OLD:" + oldURLstyle + " and NEW:" + newURLstyle);
     getStarboardBridge().handleDeepLink(getIntentUrlAsString(intent));
   }
 

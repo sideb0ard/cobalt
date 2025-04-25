@@ -129,9 +129,11 @@ ScriptPromise NavigatorRequestMediaKeySystemAccess::requestMediaKeySystemAccess(
   DVLOG(3) << __func__;
 
   LocalDOMWindow* window = LocalDOMWindow::From(script_state);
+  LOG(INFO) <<  "YO THOR! WINDOW OROIGIN!" << window->origin();
   if (!window->IsFeatureEnabled(
           mojom::blink::PermissionsPolicyFeature::kEncryptedMedia,
           ReportOptions::kReportOnFailure)) {
+    LOG(INFO) << "YOI THOR! BLOCKED IN navigator_request_media_key_system_access.cc";
     UseCounter::Count(window,
                       WebFeature::kEncryptedMediaDisabledByFeaturePolicy);
     window->AddConsoleMessage(MakeGarbageCollected<ConsoleMessage>(

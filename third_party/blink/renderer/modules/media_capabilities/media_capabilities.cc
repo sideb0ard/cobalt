@@ -1225,6 +1225,7 @@ ScriptPromise MediaCapabilities::GetEmeSupport(
         mojom::ConsoleMessageSource::kJavaScript,
         mojom::ConsoleMessageLevel::kWarning,
         kEncryptedMediaPermissionsPolicyConsoleWarning));
+    LOG(INFO) << "YO THOR - BLOKCED IN media_capabilities.cc";
     exception_state.ThrowSecurityError(
         "decodingInfo(): Creating MediaKeySystemAccess is disabled by feature "
         "policy.");

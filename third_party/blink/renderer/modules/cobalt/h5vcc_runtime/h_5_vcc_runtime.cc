@@ -27,7 +27,8 @@ H5vccRuntime::H5vccRuntime(LocalDOMWindow& window)
       deep_link_receiver_(this, window.GetExecutionContext()) {
   EnsureRemoteIsBound();
   remote_h5vcc_runtime_->GetAndClearInitialDeepLinkSync(&initial_deep_link_);
-  LOG(INFO) << "H5vccRuntime initial DeepLink: " << initial_deep_link_;
+  LOG(INFO) << "YO THOR H5vccRuntime - CTOR - initial DeepLink: "
+            << initial_deep_link_;
 }
 
 void H5vccRuntime::ContextDestroyed() {
@@ -41,7 +42,7 @@ String H5vccRuntime::initialDeepLink() {
 
 void H5vccRuntime::MaybeFireDeepLinkEvent(const String& url) {
   if (!url.empty()) {
-    LOG(INFO) << "Dispatch DeepLink to application: " << url;
+    LOG(INFO) << "YO THOR - MAYBE Dispatch DeepLink to application: " << url;
     DispatchEvent(
         *MakeGarbageCollected<DeepLinkEvent>(event_type_names::kDeeplink, url));
   }
@@ -61,12 +62,14 @@ void H5vccRuntime::EnsureRemoteIsBound() {
 }
 
 void H5vccRuntime::NotifyDeepLink(const WTF::String& deeplink) {
+  LOG(INFO) << "YO THOR NOTIFY DEEP LIIINK";
   MaybeFireDeepLinkEvent(deeplink);
 }
 
 void H5vccRuntime::AddedEventListener(
     const AtomicString& event_type,
     RegisteredEventListener& registered_listener) {
+  LOG(INFO) << "YO THOR __ ADED EVENT LISTENER ";
   EventTarget::AddedEventListener(event_type, registered_listener);
   MaybeRegisterMojoListener();
 }
@@ -74,6 +77,7 @@ void H5vccRuntime::AddedEventListener(
 void H5vccRuntime::RemovedEventListener(
     const AtomicString& event_type,
     const RegisteredEventListener& registered_listener) {
+  LOG(INFO) << "YO THOR __ REMOVED EVENT LISTENER ";
   EventTarget::RemovedEventListener(event_type, registered_listener);
   MaybeUnregisterMojoListener();
 }
@@ -87,6 +91,7 @@ void H5vccRuntime::Trace(Visitor* visitor) const {
 }
 
 void H5vccRuntime::MaybeRegisterMojoListener() {
+  LOG(INFO) << "YO THOR __ MAYBE REGISTER MOJO LISTEnr? ";
   DCHECK(HasEventListeners(event_type_names::kDeeplink));
   if (deep_link_receiver_.is_bound()) {
     return;
