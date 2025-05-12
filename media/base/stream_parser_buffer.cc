@@ -80,11 +80,7 @@ StreamParserBuffer::StreamParserBuffer(const uint8_t* data,
                                        bool is_key_frame,
                                        Type type,
                                        TrackId track_id)
-#if BUILDFLAG(USE_STARBOARD_MEDIA)
-    : DecoderBuffer(type, data, data_size, side_data, side_data_size),
-#else // BUILDFLAG(USE_STARBOARD_MEDIA)
     : DecoderBuffer(data, data_size, side_data, side_data_size),
-#endif // BUILDFLAG(USE_STARBOARD_MEDIA)
       decode_timestamp_(kNoDecodeTimestamp),
       config_id_(kInvalidConfigId),
       type_(type),
@@ -142,17 +138,6 @@ void StreamParserBuffer::set_timestamp(base::TimeDelta timestamp) {
   DecoderBuffer::set_timestamp(timestamp);
   if (preroll_buffer_)
     preroll_buffer_->set_timestamp(timestamp);
-}
-
-size_t StreamParserBuffer::GetMemoryUsage() const {
-  size_t memory_usage = DecoderBuffer::GetMemoryUsage() -
-                        sizeof(DecoderBuffer) + sizeof(StreamParserBuffer);
-
-  if (preroll_buffer_) {
-    memory_usage += preroll_buffer_->GetMemoryUsage();
-  }
-
-  return memory_usage;
 }
 
 }  // namespace media

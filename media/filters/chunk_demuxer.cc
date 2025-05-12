@@ -289,9 +289,9 @@ base::TimeDelta ChunkDemuxerStream::GetBufferedDuration() const {
   return stream_->GetBufferedDuration();
 }
 
-size_t ChunkDemuxerStream::GetMemoryUsage() const {
+size_t ChunkDemuxerStream::GetBufferedSize() const {
   base::AutoLock auto_lock(lock_);
-  return stream_->GetMemoryUsage();
+  return stream_->GetBufferedSize();
 }
 
 void ChunkDemuxerStream::OnStartOfCodedFrameGroup(DecodeTimestamp start_dts,
@@ -698,9 +698,9 @@ int64_t ChunkDemuxer::GetMemoryUsage() const {
   base::AutoLock auto_lock(lock_);
   int64_t mem = 0;
   for (const auto& s : audio_streams_)
-    mem += s->GetMemoryUsage();
+    mem += s->GetBufferedSize();
   for (const auto& s : video_streams_)
-    mem += s->GetMemoryUsage();
+    mem += s->GetBufferedSize();
   return mem;
 }
 
