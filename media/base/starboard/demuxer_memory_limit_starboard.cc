@@ -55,6 +55,7 @@ int GetBitsPerPixel(const VideoDecoderConfig& video_config) {
 
 size_t GetDemuxerStreamAudioMemoryLimit(
     const AudioDecoderConfig* /*audio_config*/) {
+  LOG(INFO) << "YO THOR - GET AUDIO MEMORY LIMIT!";
   return 0;
   // return DecoderBuffer::Allocator::GetInstance()->GetAudioBufferBudget();
 }
@@ -62,6 +63,7 @@ size_t GetDemuxerStreamAudioMemoryLimit(
 size_t GetDemuxerStreamVideoMemoryLimit(
     Demuxer::DemuxerTypes /*demuxer_type*/,
     const VideoDecoderConfig* video_config) {
+  LOG(INFO) << "YO THOR - GET VIDEO MEMORY LIMIT!";
   return 0;
   // if (!video_config) {
   //   return DecoderBuffer::Allocator::GetInstance()->GetVideoBufferBudget(
