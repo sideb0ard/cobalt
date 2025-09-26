@@ -121,12 +121,21 @@ TypeConverter<media::mojom::DecoderBufferPtr, media::DecoderBuffer>::Convert(
   }
 
 #if BUILDFLAG(USE_STARBOARD_MEDIA)
-  // Reuse the existing DecoderBuffer to avoid allocating
-  // a new DecoderBuffer with MojoRenderer. This increases
-  // ref-count of DecoderBuffer to ensure it is not released
-  // before MojoRenderer has it.
-  mojo_buffer->address = reinterpret_cast<uint64_t>(&input);
-  input.AddRef();
+  // Starboard version: Serialize metadata, data is not sent here.
+  auto data_buffer = media::mojom::DataDecoderBuffer::New();
+  data_buffer->timestamp = input.timestamp();
+  data_buffer->duration = input.duration();
+  data_buffer->is_key_frame = input.is_key_frame();
+  data_buffer->data_size = base::checked_cast<uint32_t>(input.size());
+  if (input.side_data()) {
+    data_buffer->side_data =
+        media::mojom::DecoderBufferSideData::From(*input.side_data());
+  }
+  if (input.decrypt_config()) {
+    data_buffer->decrypt_config =
+        media::mojom::DecryptConfig::From(*input.decrypt_config());
+  }
+  // NOTE: Starboard buffer data is not serialized here.
 #else // BUILDFLAG(USE_STARBOARD_MEDIA)
   auto data_buffer = media::mojom::DataDecoderBuffer::New();
   data_buffer->timestamp = input.timestamp();
@@ -171,13 +180,23 @@ TypeConverter<scoped_refptr<media::DecoderBuffer>,
   }
 
 #if BUILDFLAG(USE_STARBOARD_MEDIA)
-  // Reuse the existing DecoderBuffer to avoid allocating
-  // a new DecoderBuffer. Note that DecoderBuffer is released
-  // here as its ref-count was increased manually to ensure
-  // media thread won't release it before MojoRenderer has it.
-  scoped_refptr<media::DecoderBuffer> buffer(
-      reinterpret_cast<media::DecoderBuffer*>(input->address));
-  buffer->Release();
+  const auto& mojo_buffer = input->get_data();
+  // NOTE: This creates a buffer without the actual data for Starboard.
+  // This will likely need to be revisited.
+  auto buffer = media::DecoderBuffer::CopyFrom(base::span<const uint8_t>());
+  if (mojo_buffer->side_data) {
+    buffer->set_side_data(
+        mojo_buffer->side_data
+            .To<std::unique_ptr<media::DecoderBufferSideData>>());
+  }
+  buffer->set_timestamp(mojo_buffer->timestamp);
+  buffer->set_duration(mojo_buffer->duration);
+  buffer->set_is_key_frame(mojo_buffer->is_key_frame);
+  if (mojo_buffer->decrypt_config) {
+    buffer->set_decrypt_config(
+        mojo_buffer->decrypt_config
+            .To<std::unique_ptr<media::DecryptConfig>>());
+  }
 #else // BUILDFLAG(USE_STARBOARD_MEDIA)
   const auto& mojo_buffer = input->get_data();
   auto buffer = base::MakeRefCounted<media::DecoderBuffer>(
