@@ -175,7 +175,7 @@ MediaDrmBridge::~MediaDrmBridge() {
 
 void MediaDrmBridge::CreateSession(int ticket,
                                    std::string_view init_data,
-                                   const std::string& mime) const {
+                                   std::string_view mime) const {
   JNIEnv* env = AttachCurrentThread();
 
   JniIntWrapper j_ticket = static_cast<jint>(ticket);

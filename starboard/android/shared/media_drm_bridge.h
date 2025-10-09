@@ -77,7 +77,7 @@ class MediaDrmBridge {
 
   void CreateSession(int ticket,
                      std::string_view init_data,
-                     const std::string& mime) const;
+                     std::string_view mime) const;
   OperationResult CreateSessionWithAppProvisioning(int ticket,
                                                    std::string_view init_data,
                                                    std::string_view mime) const;
