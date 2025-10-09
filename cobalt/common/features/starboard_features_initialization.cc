@@ -145,8 +145,7 @@ base::TimeDelta SbParamWrapper::GetValue() const {
 
 #define STARBOARD_FEATURE_PARAM(T, param_object_name, feature_object_name, \
                                 param_name, default_value)                 \
-  SbParamWrapper(&feature_object_name, param_name,                         \
-                 static_cast<T>(default_value)),
+  SbParamWrapper(&feature_object_name, param_name, default_value),
 
 #define STARBOARD_FEATURE_PARAM_TIME_TYPE base::TimeDelta
 

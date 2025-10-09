@@ -73,6 +73,7 @@ android_library("cobalt_shell_java") {
     "//base:base_java",
     "//build/android:build_java",
     "//components/download/internal/common:internal_java",
+    "//components/embedder_support/android:view_java",
     "//components/viz/service:service_java",
     "//content/public/android:content_java",
     "//media/base/android:media_java",
@@ -85,6 +86,7 @@ android_library("cobalt_shell_java") {
     "//ui/base/cursor/mojom:cursor_type_java",
     "//url:gurl_java",
   ]
+  srcjar_deps = [ ":cobalt_shell_jni_headers" ]
   sources = [
     "java/src/dev/cobalt/shell/ContentViewRenderView.java",
     "java/src/dev/cobalt/shell/Shell.java",

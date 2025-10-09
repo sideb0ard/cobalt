@@ -76,7 +76,7 @@ class MediaDrmBridge {
   jobject GetMediaCrypto() const { return j_media_crypto_.obj(); }
 
   void CreateSession(int ticket,
-                     const std::vector<uint8_t>& init_data,
+                     std::string_view init_data,
                      const std::string& mime) const;
   OperationResult CreateSessionWithAppProvisioning(int ticket,
                                                    std::string_view init_data,
@@ -85,13 +85,10 @@ class MediaDrmBridge {
   OperationResult ProvideProvisionResponse(std::string_view response) const;
 
   // Updates the session. Returns true on success.
-  bool UpdateSession(int ticket,
-                     const void* key,
-                     int key_size,
-                     const void* session_id,
-                     int session_id_size,
-                     std::string* error_msg) const;
-  void CloseSession(const std::string& session_id) const;
+  OperationResult UpdateSession(int ticket,
+                                std::string_view key,
+                                std::string_view session_id) const;
+  void CloseSession(std::string_view session_id) const;
   const void* GetMetrics(int* size);
   bool CreateMediaCryptoSession();
 
