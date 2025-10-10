@@ -1,5 +1,7 @@
 // Copyright 2025 The Cobalt Authors. All Rights Reserved.
 //
+#ifndef STARBOARD_EXTENSION_FEATURE_CONFIG_H_
+#define STARBOARD_EXTENSION_FEATURE_CONFIG_H_
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -27,6 +29,7 @@
 // Doing it this way guarantees that features defined in the Chrobalt side and
 // starboard side share the same names, param types and initial default values.
 
+#include "base/time/time.h"
 #include "build/build_config.h"
 #include "starboard/configuration.h"
 
@@ -212,3 +215,5 @@ STARBOARD_FEATURE_PARAM(STARBOARD_FEATURE_PARAM_TIME_TYPE,
                         base::Microseconds(0))
 #endif  // BUILDFLAG(IS_ANDROID) && (SB_API_VERSION >= 17)
 FEATURE_PARAM_LIST_END
+
+#endif  // STARBOARD_EXTENSION_FEATURE_CONFIG_H_

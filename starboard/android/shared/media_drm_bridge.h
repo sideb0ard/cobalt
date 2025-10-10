@@ -84,7 +84,6 @@ class MediaDrmBridge {
   void GenerateProvisionRequest() const;
   OperationResult ProvideProvisionResponse(std::string_view response) const;
 
-  // Updates the session. Returns true on success.
   OperationResult UpdateSession(int ticket,
                                 std::string_view key,
                                 std::string_view session_id) const;
