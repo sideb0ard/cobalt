@@ -27,7 +27,6 @@
 // Doing it this way guarantees that features defined in the Chrobalt side and
 // starboard side share the same names, param types and initial default values.
 
-#include "base/time/time.h"
 #include "build/build_config.h"
 #include "starboard/configuration.h"
 
