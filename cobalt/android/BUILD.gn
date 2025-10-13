@@ -171,8 +171,7 @@ android_assets("coat_assets") {
   disable_compression = true
 }
 
-# Copied from target: libcontent_shell_content_view
-# TODO(b/376867565) rename this library, NO shell
+# TODO(b/450024477): just a shared library once jni migration is complete
 shared_library_with_jni("libchrobalt") {
   # TODO(b/375655377): remove testonly
   testonly = true
