@@ -28,8 +28,8 @@ import dev.cobalt.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Locale;
-import org.chromium.base.annotations.CalledByNative;
-import org.chromium.base.annotations.JNINamespace;
+import org.jni_zero.CalledByNative;
+import org.jni_zero.JNINamespace;
 
 /**
  * A wrapper of the android AudioTrack class. Android AudioTrack would not start playing until the
@@ -43,6 +43,7 @@ public class AudioTrackBridge {
   private AudioTrack mAudioTrack;
   private AudioTimestamp mAudioTimestamp = new AudioTimestamp();
   private final Object mPositionLock = new Object();
+
   @GuardedBy("mPositionLock")
   private long mMaxFramePositionSoFar = 0;
 
@@ -288,7 +289,8 @@ public class AudioTrackBridge {
   }
 
   @CalledByNative
-  private int writeWithPresentationTime(byte[] audioData, int sizeInBytes, long presentationTimeInMicroseconds) {
+  private int writeWithPresentationTime(
+      byte[] audioData, int sizeInBytes, long presentationTimeInMicroseconds) {
     if (mAudioTrack == null) {
       Log.e(TAG, "Unable to write with NULL audio track.");
       return 0;
@@ -340,7 +342,8 @@ public class AudioTrackBridge {
 
     if (mAvSyncHeader.remaining() > 0) {
       int ret =
-          mAudioTrack.write(mAvSyncHeader, mAvSyncHeader.remaining(), AudioTrack.WRITE_NON_BLOCKING);
+          mAudioTrack.write(
+              mAvSyncHeader, mAvSyncHeader.remaining(), AudioTrack.WRITE_NON_BLOCKING);
       if (ret < 0) {
         mAvSyncPacketBytesRemaining = 0;
         return ret;

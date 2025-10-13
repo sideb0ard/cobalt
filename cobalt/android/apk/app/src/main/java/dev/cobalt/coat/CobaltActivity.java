@@ -53,11 +53,12 @@ import org.chromium.base.CommandLine;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.base.library_loader.LibraryProcessType;
 import org.chromium.base.memory.MemoryPressureMonitor;
-import org.chromium.components.version_info.VersionInfo;
+import org.chromium.base.version_info.VersionInfo;
 import org.chromium.content.browser.input.ImeAdapterImpl;
 import org.chromium.content_public.browser.BrowserStartupController;
 import org.chromium.content_public.browser.DeviceUtils;
 import org.chromium.content_public.browser.JavascriptInjector;
+import org.chromium.content_public.browser.Visibility;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.ui.base.ActivityWindowAndroid;
 import org.chromium.ui.base.IntentRequestTracker;
@@ -112,7 +113,7 @@ public abstract class CobaltActivity extends Activity {
               shouldSetJNIPrefix, VersionInfo.isOfficialBuild(), commandLineArgs));
     }
 
-    DeviceUtils.addDeviceSpecificUserAgentSwitch();
+    DeviceUtils.updateDeviceSpecificUserAgentSwitch(this);
 
     // This initializes JNI and ends up calling JNI_OnLoad in native code
     LibraryLoader.getInstance().ensureInitialized();
@@ -138,7 +139,13 @@ public abstract class CobaltActivity extends Activity {
     mShellManager = new ShellManager(this);
     final boolean listenToActivityState = true;
     mIntentRequestTracker = IntentRequestTracker.createFromActivity(this);
-    mWindowAndroid = new ActivityWindowAndroid(this, listenToActivityState, mIntentRequestTracker);
+    mWindowAndroid =
+        new ActivityWindowAndroid(
+            this,
+            listenToActivityState,
+            mIntentRequestTracker,
+            /* insetObserver= */ null,
+            /* trackOcclusion= */ false);
     mIntentRequestTracker.restoreInstanceState(savedInstanceState);
     mShellManager.setWindow(mWindowAndroid);
     // Set up the animation placeholder to be the SurfaceView. This disables the
@@ -239,10 +246,12 @@ public abstract class CobaltActivity extends Activity {
     // trials are initialized in CobaltContentBrowserClient::CreateFeatureListAndFieldTrials().
     getStarboardBridge().initializePlatformAudioSink();
 
-    // Load an empty page to let shell create WebContents. Override Shell.java's onWebContentsReady()
+    // Load an empty page to let shell create WebContents. Override Shell.java's
+    // onWebContentsReady()
     // to only continue with initializeJavaBridge() and setting the webContents once it's confirmed
     // that the webContents are correctly created not null.
-    mShellManager.launchShell("",
+    mShellManager.launchShell(
+        "",
         new Shell.OnWebContentsReadyListener() {
           @Override
           public void onWebContentsReady() {
@@ -288,7 +297,7 @@ public abstract class CobaltActivity extends Activity {
     // If input is a from a gamepad button, it shouldn't be dispatched to IME which incorrectly
     // consumes the event as a VKEY_UNKNOWN
     if (KeyEvent.isGamepadButton(keyCode)) {
-        return super.onKeyDown(keyCode, event);
+      return super.onKeyDown(keyCode, event);
     }
     return dispatchKeyEventToIme(keyCode, KeyEvent.ACTION_DOWN) || super.onKeyDown(keyCode, event);
   }
@@ -296,7 +305,7 @@ public abstract class CobaltActivity extends Activity {
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
     if (KeyEvent.isGamepadButton(keyCode)) {
-        return super.onKeyUp(keyCode, event);
+      return super.onKeyUp(keyCode, event);
     }
     return dispatchKeyEventToIme(keyCode, KeyEvent.ACTION_UP) || super.onKeyUp(keyCode, event);
   }
@@ -400,7 +409,7 @@ public abstract class CobaltActivity extends Activity {
 
     // 2. Use JavascriptInjector to inject Java objects into the WebContents.
     //    This makes the annotated methods in these objects accessible from JavaScript.
-    JavascriptInjector javascriptInjector = JavascriptInjector.fromWebContents(webContents, false);
+    JavascriptInjector javascriptInjector = JavascriptInjector.fromWebContents(webContents);
 
     javascriptInjector.setAllowInspection(true);
     for (CobaltJavaScriptAndroidObject javascriptAndroidObject : javaScriptAndroidObjectList) {
@@ -410,7 +419,8 @@ public abstract class CobaltActivity extends Activity {
       javascriptInjector.addPossiblyUnsafeInterface(
           javascriptAndroidObject,
           javascriptAndroidObject.getJavaScriptInterfaceName(),
-          CobaltJavaScriptInterface.class);
+          CobaltJavaScriptInterface.class,
+          /* originAllowlist= */ new ArrayList<String>());
     }
   }
 
@@ -447,9 +457,9 @@ public abstract class CobaltActivity extends Activity {
       // document.onresume event
       webContents.onResume();
       // visibility:visible event
-      webContents.onShow();
+      webContents.updateWebContentsVisibility(Visibility.VISIBLE);
     }
-    MemoryPressureMonitor.INSTANCE.enablePolling();
+    MemoryPressureMonitor.INSTANCE.enablePolling(false);
   }
 
   @Override
@@ -460,7 +470,7 @@ public abstract class CobaltActivity extends Activity {
     WebContents webContents = getActiveWebContents();
     if (webContents != null) {
       // visibility:hidden event
-      webContents.onHide();
+      webContents.updateWebContentsVisibility(Visibility.HIDDEN);
       // document.onfreeze event
       webContents.onFreeze();
     }

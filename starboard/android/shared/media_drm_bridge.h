@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "base/android/jni_android.h"
-#include "base/android/jni_int_wrapper.h"
 #include "base/memory/raw_ref.h"
 #include "starboard/drm.h"
 
@@ -79,7 +78,6 @@ class MediaDrmBridge {
   void CreateSession(int ticket,
                      std::string_view init_data,
                      std::string_view mime) const;
-
   OperationResult CreateSessionWithAppProvisioning(int ticket,
                                                    std::string_view init_data,
                                                    std::string_view mime) const;

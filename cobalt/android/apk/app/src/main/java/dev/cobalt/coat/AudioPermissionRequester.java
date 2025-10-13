@@ -24,7 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import dev.cobalt.util.Holder;
 import dev.cobalt.util.Log;
-import org.chromium.base.annotations.CalledByNative;
+import org.jni_zero.CalledByNative;
 
 /** Helper class that requests the record audio permission. */
 public class AudioPermissionRequester {
@@ -68,7 +68,8 @@ public class AudioPermissionRequester {
   public synchronized void onRequestPermissionsResult(
       int requestCode, String[] permissions, int[] grantResults) {
     if (requestCode == R.id.rc_record_audio) {
-      boolean success = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+      boolean success =
+          grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
       Log.i(TAG, "RECORD_AUDIO permission request " + (success ? "GRANTED" : "DENIED"));
       mRequestAudioPermissionStarted = false;
     }
